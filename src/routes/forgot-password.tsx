@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RequestForgotPasswordSchema } from "@/models/UserModel"
-import { resetPasswordRequest } from "@/server-functions.ts/reset-password-request"
+import { resetPasswordRequest } from "@/server-functions/reset-password-request"
 import { useForm, useStore } from "@tanstack/react-form"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"

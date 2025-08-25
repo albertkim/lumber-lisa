@@ -13,11 +13,11 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.$token'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo.start.api-request'
-import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api.demo-names'
+import { Route as DashboardCompanyCompanyIdRouteRouteImport } from './routes/dashboard/company.$companyId/route'
+import { Route as DashboardCompanyCompanyIdHomeRouteImport } from './routes/dashboard/company.$companyId/home'
 import { ServerRoute as ApiV1HealthServerRouteImport } from './routes/api.v1.health'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -32,6 +32,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -42,21 +47,18 @@ const ResetPasswordTokenRoute = ResetPasswordTokenRouteImport.update({
   path: '/reset-password/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
-  id: '/api/demo-names',
-  path: '/api/demo-names',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
+const DashboardCompanyCompanyIdRouteRoute =
+  DashboardCompanyCompanyIdRouteRouteImport.update({
+    id: '/company/$companyId',
+    path: '/company/$companyId',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdHomeRoute =
+  DashboardCompanyCompanyIdHomeRouteImport.update({
+    id: '/home',
+    path: '/home',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
 const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
   id: '/api/v1/health',
   path: '/api/v1/health',
@@ -65,87 +67,88 @@ const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/reset-password/$token'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/home'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/reset-password/$token'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/home'
   id:
     | '__root__'
     | '/'
+    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/reset-password/$token'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/home'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordTokenRoute: typeof ResetPasswordTokenRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
 export interface FileServerRoutesByFullPath {
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
   '/api/v1/health': typeof ApiV1HealthServerRoute
 }
 export interface FileServerRoutesByTo {
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
   '/api/v1/health': typeof ApiV1HealthServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
   '/api/v1/health': typeof ApiV1HealthServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/demo-names' | '/api/v1/health'
+  fullPaths: '/api/v1/health'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/demo-names' | '/api/v1/health'
-  id: '__root__' | '/api/demo-names' | '/api/v1/health'
+  to: '/api/v1/health'
+  id: '__root__' | '/api/v1/health'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
-  ApiDemoNamesServerRoute: typeof ApiDemoNamesServerRoute
   ApiV1HealthServerRoute: typeof ApiV1HealthServerRoute
 }
 
@@ -165,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -179,31 +189,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
-      parentRoute: typeof rootRouteImport
+    '/dashboard/company/$companyId': {
+      id: '/dashboard/company/$companyId'
+      path: '/company/$companyId'
+      fullPath: '/dashboard/company/$companyId'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdRouteRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
-      parentRoute: typeof rootRouteImport
+    '/dashboard/company/$companyId/home': {
+      id: '/dashboard/company/$companyId/home'
+      path: '/home'
+      fullPath: '/dashboard/company/$companyId/home'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdHomeRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
     }
   }
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
-    '/api/demo-names': {
-      id: '/api/demo-names'
-      path: '/api/demo-names'
-      fullPath: '/api/demo-names'
-      preLoaderRoute: typeof ApiDemoNamesServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
     '/api/v1/health': {
       id: '/api/v1/health'
       path: '/api/v1/health'
@@ -214,19 +217,44 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface DashboardCompanyCompanyIdRouteRouteChildren {
+  DashboardCompanyCompanyIdHomeRoute: typeof DashboardCompanyCompanyIdHomeRoute
+}
+
+const DashboardCompanyCompanyIdRouteRouteChildren: DashboardCompanyCompanyIdRouteRouteChildren =
+  {
+    DashboardCompanyCompanyIdHomeRoute: DashboardCompanyCompanyIdHomeRoute,
+  }
+
+const DashboardCompanyCompanyIdRouteRouteWithChildren =
+  DashboardCompanyCompanyIdRouteRoute._addFileChildren(
+    DashboardCompanyCompanyIdRouteRouteChildren,
+  )
+
+interface DashboardRouteRouteChildren {
+  DashboardCompanyCompanyIdRouteRoute: typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardCompanyCompanyIdRouteRoute:
+    DashboardCompanyCompanyIdRouteRouteWithChildren,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   ResetPasswordTokenRoute: ResetPasswordTokenRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiDemoNamesServerRoute: ApiDemoNamesServerRoute,
   ApiV1HealthServerRoute: ApiV1HealthServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport

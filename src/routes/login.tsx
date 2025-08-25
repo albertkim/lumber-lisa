@@ -4,8 +4,8 @@ import { useForm } from "@tanstack/react-form"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { LoginResponseSchema, LoginSchema, User } from "../models/UserModel"
-import { getCurrentUser } from "../server-functions.ts/get-current-user"
-import { login } from "../server-functions.ts/login"
+import { getCurrentUser } from "../server-functions/get-current-user"
+import { login } from "../server-functions/login"
 
 export const Route = createFileRoute("/login")({
   component: Login
@@ -36,9 +36,8 @@ export function Login() {
           }
         })
         LoginResponseSchema.parse(result)
-        // Note: You'll need to handle token storage based on your auth setup
-        // For now, we'll just redirect to home
-        window.location.href = "/"
+        window.localStorage.setItem("token", result.token)
+        window.location.href = "/dashboard"
       } catch (error) {
         if (error instanceof Error) {
           setServerError(error.message || "Invalid credentials")

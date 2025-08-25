@@ -4,8 +4,8 @@ import { useForm } from "@tanstack/react-form"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { ResetPasswordSchema } from "../models/UserModel"
-import { resetPassword } from "../server-functions.ts/reset-password"
-import { resetPasswordValidate } from "../server-functions.ts/reset-password-validate"
+import { resetPassword } from "../server-functions/reset-password"
+import { resetPasswordValidate } from "../server-functions/reset-password-validate"
 
 export const Route = createFileRoute("/reset-password/$token")({
   component: ResetPassword
