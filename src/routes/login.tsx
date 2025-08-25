@@ -136,8 +136,8 @@ export function Login() {
           <div className="text-red-500 text-sm">{serverError && <div>{serverError}</div>}</div>
 
           <div>
-            <Link to="/" className="text-sm text-blue-600 hover:text-blue-500">
-              Back to Home
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              Forgot password?
             </Link>
           </div>
         </form>
