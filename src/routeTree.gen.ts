@@ -17,7 +17,14 @@ import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.$token'
 import { Route as DashboardCompanyCompanyIdRouteRouteImport } from './routes/dashboard/company.$companyId/route'
+import { Route as DashboardCompanyCompanyIdUsersRouteImport } from './routes/dashboard/company.$companyId/users'
+import { Route as DashboardCompanyCompanyIdReportsRouteImport } from './routes/dashboard/company.$companyId/reports'
+import { Route as DashboardCompanyCompanyIdProfileRouteImport } from './routes/dashboard/company.$companyId/profile'
 import { Route as DashboardCompanyCompanyIdHomeRouteImport } from './routes/dashboard/company.$companyId/home'
+import { Route as DashboardCompanyCompanyIdActivityLogsRouteImport } from './routes/dashboard/company.$companyId/activity-logs'
+import { Route as DashboardCompanyCompanyIdSettingsRouteRouteImport } from './routes/dashboard/company.$companyId/settings/route'
+import { Route as DashboardCompanyCompanyIdSettingsIntegrationsRouteImport } from './routes/dashboard/company.$companyId/settings/integrations'
+import { Route as DashboardCompanyCompanyIdSettingsCompanyRouteImport } from './routes/dashboard/company.$companyId/settings/company'
 import { ServerRoute as ApiV1HealthServerRouteImport } from './routes/api.v1.health'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -53,11 +60,53 @@ const DashboardCompanyCompanyIdRouteRoute =
     path: '/company/$companyId',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const DashboardCompanyCompanyIdUsersRoute =
+  DashboardCompanyCompanyIdUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdReportsRoute =
+  DashboardCompanyCompanyIdReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdProfileRoute =
+  DashboardCompanyCompanyIdProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
 const DashboardCompanyCompanyIdHomeRoute =
   DashboardCompanyCompanyIdHomeRouteImport.update({
     id: '/home',
     path: '/home',
     getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdActivityLogsRoute =
+  DashboardCompanyCompanyIdActivityLogsRouteImport.update({
+    id: '/activity-logs',
+    path: '/activity-logs',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdSettingsRouteRoute =
+  DashboardCompanyCompanyIdSettingsRouteRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdSettingsIntegrationsRoute =
+  DashboardCompanyCompanyIdSettingsIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => DashboardCompanyCompanyIdSettingsRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdSettingsCompanyRoute =
+  DashboardCompanyCompanyIdSettingsCompanyRouteImport.update({
+    id: '/company',
+    path: '/company',
+    getParentRoute: () => DashboardCompanyCompanyIdSettingsRouteRoute,
   } as any)
 const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
   id: '/api/v1/health',
@@ -72,7 +121,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
+  '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
+  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
+  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
+  '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -81,7 +137,14 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
+  '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
+  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
+  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
+  '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -91,7 +154,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
+  '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
+  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
+  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
+  '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -102,7 +172,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/settings'
+    | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
+    | '/dashboard/company/$companyId/profile'
+    | '/dashboard/company/$companyId/reports'
+    | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/settings/company'
+    | '/dashboard/company/$companyId/settings/integrations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,7 +188,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/settings'
+    | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
+    | '/dashboard/company/$companyId/profile'
+    | '/dashboard/company/$companyId/reports'
+    | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/settings/company'
+    | '/dashboard/company/$companyId/settings/integrations'
   id:
     | '__root__'
     | '/'
@@ -120,7 +204,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/settings'
+    | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
+    | '/dashboard/company/$companyId/profile'
+    | '/dashboard/company/$companyId/reports'
+    | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/settings/company'
+    | '/dashboard/company/$companyId/settings/integrations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -196,12 +287,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompanyCompanyIdRouteRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/company/$companyId/users': {
+      id: '/dashboard/company/$companyId/users'
+      path: '/users'
+      fullPath: '/dashboard/company/$companyId/users'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdUsersRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
+    '/dashboard/company/$companyId/reports': {
+      id: '/dashboard/company/$companyId/reports'
+      path: '/reports'
+      fullPath: '/dashboard/company/$companyId/reports'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdReportsRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
+    '/dashboard/company/$companyId/profile': {
+      id: '/dashboard/company/$companyId/profile'
+      path: '/profile'
+      fullPath: '/dashboard/company/$companyId/profile'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdProfileRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
     '/dashboard/company/$companyId/home': {
       id: '/dashboard/company/$companyId/home'
       path: '/home'
       fullPath: '/dashboard/company/$companyId/home'
       preLoaderRoute: typeof DashboardCompanyCompanyIdHomeRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
+    '/dashboard/company/$companyId/activity-logs': {
+      id: '/dashboard/company/$companyId/activity-logs'
+      path: '/activity-logs'
+      fullPath: '/dashboard/company/$companyId/activity-logs'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdActivityLogsRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
+    '/dashboard/company/$companyId/settings': {
+      id: '/dashboard/company/$companyId/settings'
+      path: '/settings'
+      fullPath: '/dashboard/company/$companyId/settings'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsRouteRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
+    '/dashboard/company/$companyId/settings/integrations': {
+      id: '/dashboard/company/$companyId/settings/integrations'
+      path: '/integrations'
+      fullPath: '/dashboard/company/$companyId/settings/integrations'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsIntegrationsRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdSettingsRouteRoute
+    }
+    '/dashboard/company/$companyId/settings/company': {
+      id: '/dashboard/company/$companyId/settings/company'
+      path: '/company'
+      fullPath: '/dashboard/company/$companyId/settings/company'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsCompanyRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdSettingsRouteRoute
     }
   }
 }
@@ -217,13 +357,45 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface DashboardCompanyCompanyIdSettingsRouteRouteChildren {
+  DashboardCompanyCompanyIdSettingsCompanyRoute: typeof DashboardCompanyCompanyIdSettingsCompanyRoute
+  DashboardCompanyCompanyIdSettingsIntegrationsRoute: typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
+}
+
+const DashboardCompanyCompanyIdSettingsRouteRouteChildren: DashboardCompanyCompanyIdSettingsRouteRouteChildren =
+  {
+    DashboardCompanyCompanyIdSettingsCompanyRoute:
+      DashboardCompanyCompanyIdSettingsCompanyRoute,
+    DashboardCompanyCompanyIdSettingsIntegrationsRoute:
+      DashboardCompanyCompanyIdSettingsIntegrationsRoute,
+  }
+
+const DashboardCompanyCompanyIdSettingsRouteRouteWithChildren =
+  DashboardCompanyCompanyIdSettingsRouteRoute._addFileChildren(
+    DashboardCompanyCompanyIdSettingsRouteRouteChildren,
+  )
+
 interface DashboardCompanyCompanyIdRouteRouteChildren {
+  DashboardCompanyCompanyIdSettingsRouteRoute: typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  DashboardCompanyCompanyIdActivityLogsRoute: typeof DashboardCompanyCompanyIdActivityLogsRoute
   DashboardCompanyCompanyIdHomeRoute: typeof DashboardCompanyCompanyIdHomeRoute
+  DashboardCompanyCompanyIdProfileRoute: typeof DashboardCompanyCompanyIdProfileRoute
+  DashboardCompanyCompanyIdReportsRoute: typeof DashboardCompanyCompanyIdReportsRoute
+  DashboardCompanyCompanyIdUsersRoute: typeof DashboardCompanyCompanyIdUsersRoute
 }
 
 const DashboardCompanyCompanyIdRouteRouteChildren: DashboardCompanyCompanyIdRouteRouteChildren =
   {
+    DashboardCompanyCompanyIdSettingsRouteRoute:
+      DashboardCompanyCompanyIdSettingsRouteRouteWithChildren,
+    DashboardCompanyCompanyIdActivityLogsRoute:
+      DashboardCompanyCompanyIdActivityLogsRoute,
     DashboardCompanyCompanyIdHomeRoute: DashboardCompanyCompanyIdHomeRoute,
+    DashboardCompanyCompanyIdProfileRoute:
+      DashboardCompanyCompanyIdProfileRoute,
+    DashboardCompanyCompanyIdReportsRoute:
+      DashboardCompanyCompanyIdReportsRoute,
+    DashboardCompanyCompanyIdUsersRoute: DashboardCompanyCompanyIdUsersRoute,
   }
 
 const DashboardCompanyCompanyIdRouteRouteWithChildren =

@@ -1,3 +1,4 @@
+import { getCompany } from "@/server-functions/get-company"
 import { createFileRoute, isRedirect, Outlet, redirect } from "@tanstack/react-router"
 import { getCurrentUser } from "../../server-functions/get-current-user"
 
@@ -12,14 +13,21 @@ export const Route = createFileRoute("/dashboard")({
         headers: { Authorization: `Bearer ${token}` }
       })
 
+      const company = await getCompany({
+        headers: { Authorization: `Bearer ${token}` },
+        data: {
+          companyId: user.company.companyId
+        }
+      })
+
       if (location.pathname === "/dashboard") {
         throw redirect({
           to: "/dashboard/company/$companyId/home",
-          params: { companyId: user.company.companyId.toString() }
+          params: { companyId: company.companyId.toString() }
         })
       }
 
-      return { user }
+      return { user, company }
     } catch (err) {
       // Re-throw router redirects; only send real errors to /login
       if (isRedirect(err)) throw err
