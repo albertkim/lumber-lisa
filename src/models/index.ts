@@ -1,7 +1,6 @@
 export * from "./AcitivityLogModels"
 export * from "./AdminModels"
 export * from "./CompanyModels"
-export * from "./Errors"
 export * from "./IntegrationModels"
 export * from "./PingModel"
 export * from "./SecurityRoleModels"
