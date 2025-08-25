@@ -14,8 +14,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo.start.api-request'
-import { ServerRoute as HealthServerRouteImport } from './routes/health'
 import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api.demo-names'
+import { ServerRoute as ApiV1HealthServerRouteImport } from './routes/api.v1.health'
 
 const rootServerRouteImport = createServerRootRoute()
 
@@ -34,14 +34,14 @@ const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
   path: '/demo/start/api-request',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HealthServerRoute = HealthServerRouteImport.update({
-  id: '/health',
-  path: '/health',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
   id: '/api/demo-names',
   path: '/api/demo-names',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
+const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
+  id: '/api/v1/health',
+  path: '/api/v1/health',
   getParentRoute: () => rootServerRouteImport,
 } as any)
 
@@ -75,29 +75,29 @@ export interface RootRouteChildren {
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
 export interface FileServerRoutesByFullPath {
-  '/health': typeof HealthServerRoute
   '/api/demo-names': typeof ApiDemoNamesServerRoute
+  '/api/v1/health': typeof ApiV1HealthServerRoute
 }
 export interface FileServerRoutesByTo {
-  '/health': typeof HealthServerRoute
   '/api/demo-names': typeof ApiDemoNamesServerRoute
+  '/api/v1/health': typeof ApiV1HealthServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
-  '/health': typeof HealthServerRoute
   '/api/demo-names': typeof ApiDemoNamesServerRoute
+  '/api/v1/health': typeof ApiV1HealthServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/health' | '/api/demo-names'
+  fullPaths: '/api/demo-names' | '/api/v1/health'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/health' | '/api/demo-names'
-  id: '__root__' | '/health' | '/api/demo-names'
+  to: '/api/demo-names' | '/api/v1/health'
+  id: '__root__' | '/api/demo-names' | '/api/v1/health'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
-  HealthServerRoute: typeof HealthServerRoute
   ApiDemoNamesServerRoute: typeof ApiDemoNamesServerRoute
+  ApiV1HealthServerRoute: typeof ApiV1HealthServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -127,18 +127,18 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
-    '/health': {
-      id: '/health'
-      path: '/health'
-      fullPath: '/health'
-      preLoaderRoute: typeof HealthServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
     '/api/demo-names': {
       id: '/api/demo-names'
       path: '/api/demo-names'
       fullPath: '/api/demo-names'
       preLoaderRoute: typeof ApiDemoNamesServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/v1/health': {
+      id: '/api/v1/health'
+      path: '/api/v1/health'
+      fullPath: '/api/v1/health'
+      preLoaderRoute: typeof ApiV1HealthServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
   }
@@ -153,8 +153,8 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
-  HealthServerRoute: HealthServerRoute,
   ApiDemoNamesServerRoute: ApiDemoNamesServerRoute,
+  ApiV1HealthServerRoute: ApiV1HealthServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)
