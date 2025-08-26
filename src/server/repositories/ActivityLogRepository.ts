@@ -1,5 +1,5 @@
-import { db } from "../database"
-import { ActivityLog, ActivityLogAction, ActivityLogType, CreateActivityLog } from "../models"
+import { ActivityLog, ActivityLogAction, ActivityLogType, CreateActivityLog } from "@/models"
+import { db } from "@/server/database"
 
 export const ActivityLogRepository = {
   async createActivityLog(createLog: CreateActivityLog): Promise<ActivityLog> {

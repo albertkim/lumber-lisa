@@ -1,10 +1,10 @@
-import { generateWelcomeEmail } from "../emails/WelcomeEmail"
-import { AdminRegisterNewCompany, AdminRegisterNewCompanyResponse } from "../models"
-import { AdminRepository } from "../repositories/AdminRepository"
-import { SecurityRoleRepository } from "../repositories/SecurityRoleRepository"
-import { UserRepository } from "../repositories/UserRepository"
-import { EmailUtilities } from "../utilities/EmailUtilities"
-import { LocationService } from "./LocationService"
+import { AdminRegisterNewCompany, AdminRegisterNewCompanyResponse } from "@/models"
+import { generateWelcomeEmail } from "@/server/emails/WelcomeEmail"
+import { AdminRepository } from "@/server/repositories/AdminRepository"
+import { SecurityRoleRepository } from "@/server/repositories/SecurityRoleRepository"
+import { UserRepository } from "@/server/repositories/UserRepository"
+import { LocationService } from "@/server/services/LocationService"
+import { EmailUtilities } from "@/server/utilities/EmailUtilities"
 
 export const AdminService = {
   registerNewCompany: async (registerNewCompany: AdminRegisterNewCompany): Promise<AdminRegisterNewCompanyResponse> => {
@@ -39,7 +39,7 @@ export const AdminService = {
     await EmailUtilities.sendEmail(
       adminUser.userEmail,
       "Welcome to Lumber",
-      generateWelcomeEmail(adminUser, resetPasswordToken)
+      await generateWelcomeEmail(adminUser, resetPasswordToken)
     )
     return {
       company: createdCompany,

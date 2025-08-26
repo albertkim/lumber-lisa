@@ -1,6 +1,6 @@
+import { CreateLocation, Location, LocationSchema, UpdateLocation } from "@/models"
+import { db } from "@/server/database"
 import { createError } from "@tanstack/react-start/server"
-import { db } from "../database"
-import { CreateLocation, Location, LocationSchema, UpdateLocation } from "../models"
 
 export const LocationRepository = {
   async getLocationById(companyId: number, locationId: number): Promise<Location> {

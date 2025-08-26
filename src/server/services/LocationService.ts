@@ -1,5 +1,5 @@
-import { CreateLocation, Location, UpdateLocation } from "../models"
-import { LocationRepository } from "../repositories/LocationRepository"
+import { CreateLocation, Location, UpdateLocation } from "@/models"
+import { LocationRepository } from "@/server/repositories/LocationRepository"
 
 export const LocationService = {
   async getLocationById(companyId: number, locationId: number): Promise<Location> {

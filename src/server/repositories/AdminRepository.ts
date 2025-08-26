@@ -1,6 +1,6 @@
+import { AdminRegisterNewCompany, Company } from "@/models"
+import { db } from "@/server/database"
 import { createError } from "@tanstack/react-start/server"
-import { db } from "../database"
-import { AdminRegisterNewCompany, Company } from "../models"
 import { CompanyRepository } from "./CompanyRepository"
 
 export const AdminRepository = {

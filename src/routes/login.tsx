@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { getCurrentUser } from "@/server/server-functions/get-current-user"
+import { login } from "@/server/server-functions/login"
 import { useForm } from "@tanstack/react-form"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { LoginResponseSchema, LoginSchema, User } from "../models/UserModel"
-import { getCurrentUser } from "../server-functions/get-current-user"
-import { login } from "../server-functions/login"
 
 export const Route = createFileRoute("/login")({
   component: Login

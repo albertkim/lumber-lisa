@@ -1,7 +1,7 @@
+import { AdminService } from "@/server/services/AdminService"
+import { SeedDataService } from "@/server/services/SeedDataService"
 import { randomUUID } from "crypto"
-import { db, migrator } from "./database"
-import { AdminService } from "./services/AdminService"
-import { SeedDataService } from "./services/SeedDataService"
+import { db, migrator } from "./server/database"
 
 async function createInitialUserIfNotExists() {
   // If there are no users in the database, create an admin user

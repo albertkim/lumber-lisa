@@ -5,5 +5,11 @@ export const Route = createFileRoute("/dashboard/company/$companyId/home")({
 })
 
 function RouteComponent() {
-  return <div>Hello "/dashboard/company/$companyId/home"!</div>
+  const { user } = Route.useRouteContext()
+
+  return (
+    <div>
+      <h1>Good morning, {user.userFullName}</h1>
+    </div>
+  )
 }

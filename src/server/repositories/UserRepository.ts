@@ -1,7 +1,7 @@
+import { LoginResponse, UpdateUser, User, UserSchema } from "@/models"
+import { db } from "@/server/database"
 import { createError } from "@tanstack/react-start/server"
 import { sql } from "kysely"
-import { db } from "../database"
-import { LoginResponse, UpdateUser, User, UserSchema } from "../models"
 import {
   comparePasswords,
   decodeResetPasswordToken,

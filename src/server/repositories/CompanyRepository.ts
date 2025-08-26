@@ -1,6 +1,6 @@
+import { Company, CompanySchema, DefaultMeasurementUnit, UpdateCompany } from "@/models"
+import { db } from "@/server/database"
 import { createError } from "@tanstack/react-start/server"
-import { db } from "../database"
-import { Company, CompanySchema, DefaultMeasurementUnit, UpdateCompany } from "../models"
 
 export const CompanyRepository = {
   async getCompanyById(companyId: number): Promise<Company> {

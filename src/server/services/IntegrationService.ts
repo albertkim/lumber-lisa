@@ -1,7 +1,7 @@
+import { Company, Integrations, LisaReport, UpdateIntegrations } from "@/models"
+import { IntegrationsRepository } from "@/server/repositories/IntegrationsRepository"
+import { executeMSSQLQuery, MSSQLConnectionConfig } from "@/server/utilities/MSSQLUtlities"
 import { createError } from "@tanstack/react-start/server"
-import { Company, Integrations, LisaReport, UpdateIntegrations } from "../models"
-import { IntegrationsRepository } from "../repositories/IntegrationsRepository"
-import { executeMSSQLQuery, MSSQLConnectionConfig } from "../utilities/MSSQLUtlities"
 
 const LISA_TEST_QUERY = `select 1+1`
 

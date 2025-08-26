@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { CompanyUsersResponse } from "@/models"
-import { getCompanyUsers } from "@/server-functions/company-user-functions"
+import { getCompanyUsers } from "@/server/server-functions/company-user-functions"
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 

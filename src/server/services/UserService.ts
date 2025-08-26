@@ -1,8 +1,8 @@
-import { generateResetPasswordEmail } from "../emails/ResetPasswordEmail"
-import { generateWelcomeEmail } from "../emails/WelcomeEmail"
-import { CreateUser, Login, LoginResponse, UpdateUser, User } from "../models"
-import { UserRepository } from "../repositories/UserRepository"
-import { EmailUtilities } from "../utilities/EmailUtilities"
+import { CreateUser, Login, LoginResponse, UpdateUser, User } from "@/models"
+import { generateResetPasswordEmail } from "@/server/emails/ResetPasswordEmail"
+import { generateWelcomeEmail } from "@/server/emails/WelcomeEmail"
+import { UserRepository } from "@/server/repositories/UserRepository"
+import { EmailUtilities } from "@/server/utilities/EmailUtilities"
 import { SecurityRoleService } from "./SecurityRoleService"
 
 export const UserService = {

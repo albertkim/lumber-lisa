@@ -1,6 +1,6 @@
-import { Company, CompanyUsersResponse, UpdateCompany } from "../models"
-import { CompanyRepository } from "../repositories/CompanyRepository"
-import { UserRepository } from "../repositories/UserRepository"
+import { Company, CompanyUsersResponse, UpdateCompany } from "@/models"
+import { CompanyRepository } from "@/server/repositories/CompanyRepository"
+import { UserRepository } from "@/server/repositories/UserRepository"
 
 export const CompanyService = {
   async getCompanyById(companyId: number): Promise<Company> {

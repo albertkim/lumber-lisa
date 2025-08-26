@@ -1,5 +1,5 @@
-import { CreateActivityLog } from "../models"
-import { ActivityLogRepository } from "../repositories/ActivityLogRepository"
+import { CreateActivityLog } from "@/models"
+import { ActivityLogRepository } from "@/server/repositories/ActivityLogRepository"
 
 export const ActivityLogService = {
   async createActivityLog(createLog: CreateActivityLog) {

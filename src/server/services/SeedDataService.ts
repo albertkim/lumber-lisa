@@ -1,5 +1,5 @@
-import { Company, User } from "../models"
-import { LocationService } from "./LocationService"
+import { Company, User } from "@/models"
+import { LocationService } from "@/server/services/LocationService"
 
 const seedLocations = [
   {

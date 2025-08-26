@@ -1,4 +1,4 @@
-import { SecurityRoleRepository } from "../repositories/SecurityRoleRepository"
+import { SecurityRoleRepository } from "@/server/repositories/SecurityRoleRepository"
 
 export class SecurityRoleService {
   static async getSecurityRole(companyId: number, securityRoleId: number) {

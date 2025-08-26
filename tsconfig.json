@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", "src/migrations/001_init.js", "src/server-functions"],
+  "include": ["**/*.ts", "**/*.tsx", "src/server/migrations/001_init.js", "src/server-functions"],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",

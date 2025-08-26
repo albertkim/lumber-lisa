@@ -1,6 +1,6 @@
+import { CreateSecurityRole, SecurityRole, SecurityRoleSchema } from "@/models"
+import { db } from "@/server/database"
 import { createError } from "@tanstack/react-start/server"
-import { db } from "../database"
-import { CreateSecurityRole, SecurityRole, SecurityRoleSchema } from "../models"
 
 async function getSecurityRole(
   companyId: number,

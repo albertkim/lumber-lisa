@@ -1,5 +1,5 @@
-import { db } from "../database"
-import { Integrations, UpdateIntegrations } from "../models"
+import { Integrations, UpdateIntegrations } from "@/models"
+import { db } from "@/server/database"
 
 export const IntegrationsRepository = {
   async getIntegrations(companyId: number): Promise<Integrations> {
@@ -10,6 +10,7 @@ export const IntegrationsRepository = {
       .executeTakeFirst()
 
     return {
+      companyId,
       lisa: lisa_integrations
         ? {
             databaseHost: lisa_integrations.integrations_lisa_database_host,
