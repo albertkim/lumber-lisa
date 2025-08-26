@@ -23,8 +23,10 @@ import { Route as DashboardCompanyCompanyIdProfileRouteImport } from './routes/d
 import { Route as DashboardCompanyCompanyIdHomeRouteImport } from './routes/dashboard/company.$companyId/home'
 import { Route as DashboardCompanyCompanyIdActivityLogsRouteImport } from './routes/dashboard/company.$companyId/activity-logs'
 import { Route as DashboardCompanyCompanyIdSettingsRouteRouteImport } from './routes/dashboard/company.$companyId/settings/route'
+import { Route as DashboardCompanyCompanyIdSettingsLocationsRouteImport } from './routes/dashboard/company.$companyId/settings/locations'
 import { Route as DashboardCompanyCompanyIdSettingsIntegrationsRouteImport } from './routes/dashboard/company.$companyId/settings/integrations'
 import { Route as DashboardCompanyCompanyIdSettingsCompanyRouteImport } from './routes/dashboard/company.$companyId/settings/company'
+import { Route as DashboardCompanyCompanyIdSettingsBillingRouteImport } from './routes/dashboard/company.$companyId/settings/billing'
 import { ServerRoute as ApiV1HealthServerRouteImport } from './routes/api.v1.health'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -96,6 +98,12 @@ const DashboardCompanyCompanyIdSettingsRouteRoute =
     path: '/settings',
     getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
   } as any)
+const DashboardCompanyCompanyIdSettingsLocationsRoute =
+  DashboardCompanyCompanyIdSettingsLocationsRouteImport.update({
+    id: '/locations',
+    path: '/locations',
+    getParentRoute: () => DashboardCompanyCompanyIdSettingsRouteRoute,
+  } as any)
 const DashboardCompanyCompanyIdSettingsIntegrationsRoute =
   DashboardCompanyCompanyIdSettingsIntegrationsRouteImport.update({
     id: '/integrations',
@@ -106,6 +114,12 @@ const DashboardCompanyCompanyIdSettingsCompanyRoute =
   DashboardCompanyCompanyIdSettingsCompanyRouteImport.update({
     id: '/company',
     path: '/company',
+    getParentRoute: () => DashboardCompanyCompanyIdSettingsRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdSettingsBillingRoute =
+  DashboardCompanyCompanyIdSettingsBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
     getParentRoute: () => DashboardCompanyCompanyIdSettingsRouteRoute,
   } as any)
 const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
@@ -127,8 +141,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
+  '/dashboard/company/$companyId/settings/locations': typeof DashboardCompanyCompanyIdSettingsLocationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -143,8 +159,10 @@ export interface FileRoutesByTo {
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
+  '/dashboard/company/$companyId/settings/locations': typeof DashboardCompanyCompanyIdSettingsLocationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,8 +178,10 @@ export interface FileRoutesById {
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
+  '/dashboard/company/$companyId/settings/locations': typeof DashboardCompanyCompanyIdSettingsLocationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,8 +198,10 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId/profile'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
+    | '/dashboard/company/$companyId/settings/locations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -194,8 +216,10 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId/profile'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
+    | '/dashboard/company/$companyId/settings/locations'
   id:
     | '__root__'
     | '/'
@@ -210,8 +234,10 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId/profile'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
+    | '/dashboard/company/$companyId/settings/locations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -329,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsRouteRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
     }
+    '/dashboard/company/$companyId/settings/locations': {
+      id: '/dashboard/company/$companyId/settings/locations'
+      path: '/locations'
+      fullPath: '/dashboard/company/$companyId/settings/locations'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsLocationsRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdSettingsRouteRoute
+    }
     '/dashboard/company/$companyId/settings/integrations': {
       id: '/dashboard/company/$companyId/settings/integrations'
       path: '/integrations'
@@ -341,6 +374,13 @@ declare module '@tanstack/react-router' {
       path: '/company'
       fullPath: '/dashboard/company/$companyId/settings/company'
       preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsCompanyRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdSettingsRouteRoute
+    }
+    '/dashboard/company/$companyId/settings/billing': {
+      id: '/dashboard/company/$companyId/settings/billing'
+      path: '/billing'
+      fullPath: '/dashboard/company/$companyId/settings/billing'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsBillingRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdSettingsRouteRoute
     }
   }
@@ -358,16 +398,22 @@ declare module '@tanstack/react-start/server' {
 }
 
 interface DashboardCompanyCompanyIdSettingsRouteRouteChildren {
+  DashboardCompanyCompanyIdSettingsBillingRoute: typeof DashboardCompanyCompanyIdSettingsBillingRoute
   DashboardCompanyCompanyIdSettingsCompanyRoute: typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   DashboardCompanyCompanyIdSettingsIntegrationsRoute: typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
+  DashboardCompanyCompanyIdSettingsLocationsRoute: typeof DashboardCompanyCompanyIdSettingsLocationsRoute
 }
 
 const DashboardCompanyCompanyIdSettingsRouteRouteChildren: DashboardCompanyCompanyIdSettingsRouteRouteChildren =
   {
+    DashboardCompanyCompanyIdSettingsBillingRoute:
+      DashboardCompanyCompanyIdSettingsBillingRoute,
     DashboardCompanyCompanyIdSettingsCompanyRoute:
       DashboardCompanyCompanyIdSettingsCompanyRoute,
     DashboardCompanyCompanyIdSettingsIntegrationsRoute:
       DashboardCompanyCompanyIdSettingsIntegrationsRoute,
+    DashboardCompanyCompanyIdSettingsLocationsRoute:
+      DashboardCompanyCompanyIdSettingsLocationsRoute,
   }
 
 const DashboardCompanyCompanyIdSettingsRouteRouteWithChildren =
