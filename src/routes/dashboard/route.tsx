@@ -1,4 +1,4 @@
-import { getCompany } from "@/server-functions/get-company"
+import { getCompany } from "@/server-functions/company-get"
 import { createFileRoute, isRedirect, Outlet, redirect } from "@tanstack/react-router"
 import { getCurrentUser } from "../../server-functions/get-current-user"
 
