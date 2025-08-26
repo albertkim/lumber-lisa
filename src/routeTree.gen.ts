@@ -14,19 +14,22 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.$token'
 import { Route as DashboardCompanyCompanyIdRouteRouteImport } from './routes/dashboard/company.$companyId/route'
 import { Route as DashboardCompanyCompanyIdUsersRouteImport } from './routes/dashboard/company.$companyId/users'
-import { Route as DashboardCompanyCompanyIdReportsRouteImport } from './routes/dashboard/company.$companyId/reports'
 import { Route as DashboardCompanyCompanyIdProfileRouteImport } from './routes/dashboard/company.$companyId/profile'
 import { Route as DashboardCompanyCompanyIdHomeRouteImport } from './routes/dashboard/company.$companyId/home'
 import { Route as DashboardCompanyCompanyIdActivityLogsRouteImport } from './routes/dashboard/company.$companyId/activity-logs'
 import { Route as DashboardCompanyCompanyIdSettingsRouteRouteImport } from './routes/dashboard/company.$companyId/settings/route'
+import { Route as DashboardCompanyCompanyIdReportsRouteRouteImport } from './routes/dashboard/company.$companyId/reports/route'
 import { Route as DashboardCompanyCompanyIdSettingsLocationsRouteImport } from './routes/dashboard/company.$companyId/settings/locations'
 import { Route as DashboardCompanyCompanyIdSettingsIntegrationsRouteImport } from './routes/dashboard/company.$companyId/settings/integrations'
 import { Route as DashboardCompanyCompanyIdSettingsCompanyRouteImport } from './routes/dashboard/company.$companyId/settings/company'
 import { Route as DashboardCompanyCompanyIdSettingsBillingRouteImport } from './routes/dashboard/company.$companyId/settings/billing'
+import { Route as DashboardCompanyCompanyIdReportsInvoiceQuantityRouteImport } from './routes/dashboard/company.$companyId/reports/invoice-quantity'
+import { Route as DashboardCompanyCompanyIdReportsInventoryRouteImport } from './routes/dashboard/company.$companyId/reports/inventory'
 import { ServerRoute as ApiV1HealthServerRouteImport } from './routes/api.v1.health'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -44,6 +47,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -66,12 +74,6 @@ const DashboardCompanyCompanyIdUsersRoute =
   DashboardCompanyCompanyIdUsersRouteImport.update({
     id: '/users',
     path: '/users',
-    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
-  } as any)
-const DashboardCompanyCompanyIdReportsRoute =
-  DashboardCompanyCompanyIdReportsRouteImport.update({
-    id: '/reports',
-    path: '/reports',
     getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
   } as any)
 const DashboardCompanyCompanyIdProfileRoute =
@@ -98,6 +100,12 @@ const DashboardCompanyCompanyIdSettingsRouteRoute =
     path: '/settings',
     getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
   } as any)
+const DashboardCompanyCompanyIdReportsRouteRoute =
+  DashboardCompanyCompanyIdReportsRouteRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
 const DashboardCompanyCompanyIdSettingsLocationsRoute =
   DashboardCompanyCompanyIdSettingsLocationsRouteImport.update({
     id: '/locations',
@@ -122,6 +130,18 @@ const DashboardCompanyCompanyIdSettingsBillingRoute =
     path: '/billing',
     getParentRoute: () => DashboardCompanyCompanyIdSettingsRouteRoute,
   } as any)
+const DashboardCompanyCompanyIdReportsInvoiceQuantityRoute =
+  DashboardCompanyCompanyIdReportsInvoiceQuantityRouteImport.update({
+    id: '/invoice-quantity',
+    path: '/invoice-quantity',
+    getParentRoute: () => DashboardCompanyCompanyIdReportsRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdReportsInventoryRoute =
+  DashboardCompanyCompanyIdReportsInventoryRouteImport.update({
+    id: '/inventory',
+    path: '/inventory',
+    getParentRoute: () => DashboardCompanyCompanyIdReportsRouteRoute,
+  } as any)
 const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
   id: '/api/v1/health',
   path: '/api/v1/health',
@@ -130,17 +150,20 @@ const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
-  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
+  '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
@@ -148,17 +171,20 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
-  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
+  '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
@@ -167,17 +193,20 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
-  '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRoute
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
+  '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
+  '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
@@ -187,17 +216,20 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
     | '/dashboard/company/$companyId/profile'
-    | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/reports/inventory'
+    | '/dashboard/company/$companyId/reports/invoice-quantity'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
@@ -205,17 +237,20 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
     | '/dashboard/company/$companyId/profile'
-    | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/reports/inventory'
+    | '/dashboard/company/$companyId/reports/invoice-quantity'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
@@ -223,17 +258,20 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
     | '/dashboard/company/$companyId/profile'
-    | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/users'
+    | '/dashboard/company/$companyId/reports/inventory'
+    | '/dashboard/company/$companyId/reports/invoice-quantity'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
@@ -242,6 +280,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -292,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -318,13 +364,6 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/dashboard/company/$companyId/users'
       preLoaderRoute: typeof DashboardCompanyCompanyIdUsersRouteImport
-      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
-    }
-    '/dashboard/company/$companyId/reports': {
-      id: '/dashboard/company/$companyId/reports'
-      path: '/reports'
-      fullPath: '/dashboard/company/$companyId/reports'
-      preLoaderRoute: typeof DashboardCompanyCompanyIdReportsRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
     }
     '/dashboard/company/$companyId/profile': {
@@ -355,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsRouteRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
     }
+    '/dashboard/company/$companyId/reports': {
+      id: '/dashboard/company/$companyId/reports'
+      path: '/reports'
+      fullPath: '/dashboard/company/$companyId/reports'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdReportsRouteRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
     '/dashboard/company/$companyId/settings/locations': {
       id: '/dashboard/company/$companyId/settings/locations'
       path: '/locations'
@@ -383,6 +429,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsBillingRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdSettingsRouteRoute
     }
+    '/dashboard/company/$companyId/reports/invoice-quantity': {
+      id: '/dashboard/company/$companyId/reports/invoice-quantity'
+      path: '/invoice-quantity'
+      fullPath: '/dashboard/company/$companyId/reports/invoice-quantity'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdReportsRouteRoute
+    }
+    '/dashboard/company/$companyId/reports/inventory': {
+      id: '/dashboard/company/$companyId/reports/inventory'
+      path: '/inventory'
+      fullPath: '/dashboard/company/$companyId/reports/inventory'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdReportsInventoryRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdReportsRouteRoute
+    }
   }
 }
 declare module '@tanstack/react-start/server' {
@@ -396,6 +456,24 @@ declare module '@tanstack/react-start/server' {
     }
   }
 }
+
+interface DashboardCompanyCompanyIdReportsRouteRouteChildren {
+  DashboardCompanyCompanyIdReportsInventoryRoute: typeof DashboardCompanyCompanyIdReportsInventoryRoute
+  DashboardCompanyCompanyIdReportsInvoiceQuantityRoute: typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
+}
+
+const DashboardCompanyCompanyIdReportsRouteRouteChildren: DashboardCompanyCompanyIdReportsRouteRouteChildren =
+  {
+    DashboardCompanyCompanyIdReportsInventoryRoute:
+      DashboardCompanyCompanyIdReportsInventoryRoute,
+    DashboardCompanyCompanyIdReportsInvoiceQuantityRoute:
+      DashboardCompanyCompanyIdReportsInvoiceQuantityRoute,
+  }
+
+const DashboardCompanyCompanyIdReportsRouteRouteWithChildren =
+  DashboardCompanyCompanyIdReportsRouteRoute._addFileChildren(
+    DashboardCompanyCompanyIdReportsRouteRouteChildren,
+  )
 
 interface DashboardCompanyCompanyIdSettingsRouteRouteChildren {
   DashboardCompanyCompanyIdSettingsBillingRoute: typeof DashboardCompanyCompanyIdSettingsBillingRoute
@@ -422,16 +500,18 @@ const DashboardCompanyCompanyIdSettingsRouteRouteWithChildren =
   )
 
 interface DashboardCompanyCompanyIdRouteRouteChildren {
+  DashboardCompanyCompanyIdReportsRouteRoute: typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   DashboardCompanyCompanyIdSettingsRouteRoute: typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   DashboardCompanyCompanyIdActivityLogsRoute: typeof DashboardCompanyCompanyIdActivityLogsRoute
   DashboardCompanyCompanyIdHomeRoute: typeof DashboardCompanyCompanyIdHomeRoute
   DashboardCompanyCompanyIdProfileRoute: typeof DashboardCompanyCompanyIdProfileRoute
-  DashboardCompanyCompanyIdReportsRoute: typeof DashboardCompanyCompanyIdReportsRoute
   DashboardCompanyCompanyIdUsersRoute: typeof DashboardCompanyCompanyIdUsersRoute
 }
 
 const DashboardCompanyCompanyIdRouteRouteChildren: DashboardCompanyCompanyIdRouteRouteChildren =
   {
+    DashboardCompanyCompanyIdReportsRouteRoute:
+      DashboardCompanyCompanyIdReportsRouteRouteWithChildren,
     DashboardCompanyCompanyIdSettingsRouteRoute:
       DashboardCompanyCompanyIdSettingsRouteRouteWithChildren,
     DashboardCompanyCompanyIdActivityLogsRoute:
@@ -439,8 +519,6 @@ const DashboardCompanyCompanyIdRouteRouteChildren: DashboardCompanyCompanyIdRout
     DashboardCompanyCompanyIdHomeRoute: DashboardCompanyCompanyIdHomeRoute,
     DashboardCompanyCompanyIdProfileRoute:
       DashboardCompanyCompanyIdProfileRoute,
-    DashboardCompanyCompanyIdReportsRoute:
-      DashboardCompanyCompanyIdReportsRoute,
     DashboardCompanyCompanyIdUsersRoute: DashboardCompanyCompanyIdUsersRoute,
   }
 
@@ -464,6 +542,7 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,

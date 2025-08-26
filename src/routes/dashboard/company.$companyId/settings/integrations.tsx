@@ -20,6 +20,7 @@ function RouteComponent() {
 
   const form = useForm({
     defaultValues: {
+      companyId: company.companyId,
       lisa: integrations?.lisa || null
     },
     validators: {
@@ -44,7 +45,6 @@ function RouteComponent() {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           },
           data: {
-            companyId: company!.companyId,
             ...data
           }
         })
@@ -67,15 +67,10 @@ function RouteComponent() {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         },
         data: {
-          companyId: company!.companyId
+          companyId: company.companyId
         }
       })
       setIntegrations(response)
-
-      // Update form values with fetched data
-      form.reset({
-        lisa: response.lisa
-      })
     } catch (error) {
       console.error("Failed to fetch integrations:", error)
     }
@@ -87,6 +82,7 @@ function RouteComponent() {
 
   const disableLisa = () => {
     form.reset({
+      companyId: company.companyId,
       lisa: null
     })
     form.handleSubmit()

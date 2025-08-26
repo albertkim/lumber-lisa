@@ -49,20 +49,20 @@ function RouteComponent() {
                 Locations
               </Link>
             </TabsTrigger>
-            <TabsTrigger value="billing" asChild>
-              <Link
-                to="/dashboard/company/$companyId/settings/billing"
-                params={{ companyId: company.companyId.toString() }}
-              >
-                Billing
-              </Link>
-            </TabsTrigger>
             <TabsTrigger value="integrations" asChild>
               <Link
                 to="/dashboard/company/$companyId/settings/integrations"
                 params={{ companyId: company.companyId.toString() }}
               >
                 Integrations
+              </Link>
+            </TabsTrigger>
+            <TabsTrigger value="billing" asChild>
+              <Link
+                to="/dashboard/company/$companyId/settings/billing"
+                params={{ companyId: company.companyId.toString() }}
+              >
+                Billing
               </Link>
             </TabsTrigger>
           </TabsList>
