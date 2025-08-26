@@ -34,6 +34,7 @@ export const LocationRepository = {
       .selectFrom("locations")
       .selectAll()
       .where("location_company_id", "=", companyId)
+      .orderBy("location_create_date", "asc")
       .execute()
 
     return locationResults.map((location) => {
