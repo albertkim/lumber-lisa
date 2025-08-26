@@ -36,3 +36,5 @@ public/nutrient-viewer-lib
 **/*/.terraformrc
 **/*/terraform.rc
 **/*/.terraform.lock.hcl
+
+.vercel

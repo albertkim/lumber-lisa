@@ -17,6 +17,8 @@ import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.$token'
+import { Route as AdminCompaniesRouteImport } from './routes/admin/companies'
+import { Route as AdminCompaniesNewRouteImport } from './routes/admin/companies.new'
 import { Route as DashboardCompanyCompanyIdRouteRouteImport } from './routes/dashboard/company.$companyId/route'
 import { Route as DashboardCompanyCompanyIdProfileRouteImport } from './routes/dashboard/company.$companyId/profile'
 import { Route as DashboardCompanyCompanyIdHomeRouteImport } from './routes/dashboard/company.$companyId/home'
@@ -67,6 +69,16 @@ const ResetPasswordTokenRoute = ResetPasswordTokenRouteImport.update({
   id: '/reset-password/$token',
   path: '/reset-password/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCompaniesRoute = AdminCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminCompaniesNewRoute = AdminCompaniesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminCompaniesRoute,
 } as any)
 const DashboardCompanyCompanyIdRouteRoute =
   DashboardCompanyCompanyIdRouteRouteImport.update({
@@ -178,12 +190,14 @@ const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/admin/companies': typeof AdminCompaniesRouteWithChildren
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/admin/companies/new': typeof AdminCompaniesNewRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
@@ -203,12 +217,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/admin/companies': typeof AdminCompaniesRouteWithChildren
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/admin/companies/new': typeof AdminCompaniesNewRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
@@ -229,12 +245,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/admin/companies': typeof AdminCompaniesRouteWithChildren
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
+  '/admin/companies/new': typeof AdminCompaniesNewRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
@@ -260,8 +278,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/login'
+    | '/admin/companies'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/admin/companies/new'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/users'
@@ -285,8 +305,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/login'
+    | '/admin/companies'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/admin/companies/new'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/users'
@@ -310,8 +332,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/login'
+    | '/admin/companies'
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
+    | '/admin/companies/new'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/users'
@@ -332,7 +356,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRouteRoute: typeof AdminRouteRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -403,6 +427,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/reset-password/$token'
       preLoaderRoute: typeof ResetPasswordTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/companies': {
+      id: '/admin/companies'
+      path: '/companies'
+      fullPath: '/admin/companies'
+      preLoaderRoute: typeof AdminCompaniesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/companies/new': {
+      id: '/admin/companies/new'
+      path: '/new'
+      fullPath: '/admin/companies/new'
+      preLoaderRoute: typeof AdminCompaniesNewRouteImport
+      parentRoute: typeof AdminCompaniesRoute
     }
     '/dashboard/company/$companyId': {
       id: '/dashboard/company/$companyId'
@@ -537,6 +575,30 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface AdminCompaniesRouteChildren {
+  AdminCompaniesNewRoute: typeof AdminCompaniesNewRoute
+}
+
+const AdminCompaniesRouteChildren: AdminCompaniesRouteChildren = {
+  AdminCompaniesNewRoute: AdminCompaniesNewRoute,
+}
+
+const AdminCompaniesRouteWithChildren = AdminCompaniesRoute._addFileChildren(
+  AdminCompaniesRouteChildren,
+)
+
+interface AdminRouteRouteChildren {
+  AdminCompaniesRoute: typeof AdminCompaniesRouteWithChildren
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminCompaniesRoute: AdminCompaniesRouteWithChildren,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 interface DashboardCompanyCompanyIdReportsRouteRouteChildren {
   DashboardCompanyCompanyIdReportsInventoryRoute: typeof DashboardCompanyCompanyIdReportsInventoryRoute
   DashboardCompanyCompanyIdReportsInvoiceQuantityRoute: typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
@@ -659,7 +721,7 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRouteRoute: AdminRouteRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
