@@ -104,7 +104,7 @@ function LocationsComponent() {
   return (
     <div>
       <Button className="mb-4" onClick={handleAdd}>
-        Add Location
+        Add location
       </Button>
 
       <Table>
@@ -133,14 +133,14 @@ function LocationsComponent() {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>{editLocation ? "Edit" : "Add"} Location</SheetTitle>
+            <SheetTitle>{editLocation ? "Edit" : "Add"} location</SheetTitle>
           </SheetHeader>
           <form
             onSubmit={(e) => {
               e.preventDefault()
               form.handleSubmit()
             }}
-            className="space-y-4 mt-4"
+            className="space-y-4 px-4"
           >
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Name</label>

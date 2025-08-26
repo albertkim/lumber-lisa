@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 export const IntegrationsSchema = z.object({
+  companyId: z.number(),
   lisa: z
     .object({
       databaseHost: z.string(),
@@ -14,6 +15,7 @@ export const IntegrationsSchema = z.object({
 export type Integrations = z.infer<typeof IntegrationsSchema>
 
 export const UpdateIntegrationsSchema = IntegrationsSchema.partial().extend({
+  companyId: z.number(),
   lisa: z
     .object({
       databaseHost: z.string().min(1),
