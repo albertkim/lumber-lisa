@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "start": "node .output/server/index.mjs",
+    "dev": "tsx --env-file .env.local src/migrate.ts && vite dev --port 3000",
+    "start": "tsx src/migrate.ts && node .output/server/index.mjs",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",
