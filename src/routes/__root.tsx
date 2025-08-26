@@ -1,7 +1,5 @@
 import { Toaster } from "@/components/ui/sonner"
-import { TanstackDevtools } from "@tanstack/react-devtools"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
 import appCss from "../styles.css?url"
 
@@ -39,17 +37,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <Toaster />
-        <TanstackDevtools
-          config={{
-            position: "bottom-left"
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />
-            }
-          ]}
-        />
         <Scripts />
       </body>
     </html>

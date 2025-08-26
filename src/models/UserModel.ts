@@ -2,19 +2,17 @@ import { z } from "zod"
 
 // Schemas
 
-export const UserSchema = z
-  .object({
-    userId: z.number(),
-    userFullName: z.string().nullable(),
-    userEmail: z.string().email(),
-    isAdmin: z.boolean(),
-    securityRoleId: z.number(),
-    company: z.object({
-      companyId: z.number(),
-      companyName: z.string()
-    })
+export const UserSchema = z.object({
+  userId: z.number(),
+  userFullName: z.string().nullable(),
+  userEmail: z.string().email(),
+  isAdmin: z.boolean(),
+  securityRoleId: z.number(),
+  company: z.object({
+    companyId: z.number(),
+    companyName: z.string()
   })
-  .strict()
+})
 
 export const CreateUserSchema = UserSchema.pick({
   userFullName: true,
@@ -25,17 +23,8 @@ export const CreateUserSchema = UserSchema.pick({
 })
 
 export const UpdateUserSchema = UserSchema.pick({
+  userId: true,
   userFullName: true
-})
-
-export const CreateOrUpdateUserSchema = UpdateUserSchema.extend({
-  userId: z.number().optional(),
-  userEmail: z
-    .string()
-    .email()
-    .min(1, "Email cannot be empty")
-    .transform((val) => val.toLowerCase()),
-  userFullName: z.string().min(1, "Full name cannot be empty")
 })
 
 export const LoginSchema = z.object({

@@ -18,18 +18,22 @@ import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.$token'
 import { Route as DashboardCompanyCompanyIdRouteRouteImport } from './routes/dashboard/company.$companyId/route'
-import { Route as DashboardCompanyCompanyIdUsersRouteImport } from './routes/dashboard/company.$companyId/users'
 import { Route as DashboardCompanyCompanyIdProfileRouteImport } from './routes/dashboard/company.$companyId/profile'
 import { Route as DashboardCompanyCompanyIdHomeRouteImport } from './routes/dashboard/company.$companyId/home'
 import { Route as DashboardCompanyCompanyIdActivityLogsRouteImport } from './routes/dashboard/company.$companyId/activity-logs'
+import { Route as DashboardCompanyCompanyIdUsersRouteRouteImport } from './routes/dashboard/company.$companyId/users/route'
 import { Route as DashboardCompanyCompanyIdSettingsRouteRouteImport } from './routes/dashboard/company.$companyId/settings/route'
 import { Route as DashboardCompanyCompanyIdReportsRouteRouteImport } from './routes/dashboard/company.$companyId/reports/route'
+import { Route as DashboardCompanyCompanyIdUsersSecurityRolesRouteImport } from './routes/dashboard/company.$companyId/users/security-roles'
+import { Route as DashboardCompanyCompanyIdUsersListRouteImport } from './routes/dashboard/company.$companyId/users/list'
 import { Route as DashboardCompanyCompanyIdSettingsLocationsRouteImport } from './routes/dashboard/company.$companyId/settings/locations'
 import { Route as DashboardCompanyCompanyIdSettingsIntegrationsRouteImport } from './routes/dashboard/company.$companyId/settings/integrations'
 import { Route as DashboardCompanyCompanyIdSettingsCompanyRouteImport } from './routes/dashboard/company.$companyId/settings/company'
 import { Route as DashboardCompanyCompanyIdSettingsBillingRouteImport } from './routes/dashboard/company.$companyId/settings/billing'
 import { Route as DashboardCompanyCompanyIdReportsInvoiceQuantityRouteImport } from './routes/dashboard/company.$companyId/reports/invoice-quantity'
 import { Route as DashboardCompanyCompanyIdReportsInventoryRouteImport } from './routes/dashboard/company.$companyId/reports/inventory'
+import { Route as DashboardCompanyCompanyIdUsersListAddUserRouteImport } from './routes/dashboard/company.$companyId/users/list.add-user'
+import { Route as DashboardCompanyCompanyIdUsersListEditUserUserIdRouteImport } from './routes/dashboard/company.$companyId/users/list.edit-user.$userId'
 import { ServerRoute as ApiV1HealthServerRouteImport } from './routes/api.v1.health'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -70,12 +74,6 @@ const DashboardCompanyCompanyIdRouteRoute =
     path: '/company/$companyId',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
-const DashboardCompanyCompanyIdUsersRoute =
-  DashboardCompanyCompanyIdUsersRouteImport.update({
-    id: '/users',
-    path: '/users',
-    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
-  } as any)
 const DashboardCompanyCompanyIdProfileRoute =
   DashboardCompanyCompanyIdProfileRouteImport.update({
     id: '/profile',
@@ -94,6 +92,12 @@ const DashboardCompanyCompanyIdActivityLogsRoute =
     path: '/activity-logs',
     getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
   } as any)
+const DashboardCompanyCompanyIdUsersRouteRoute =
+  DashboardCompanyCompanyIdUsersRouteRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
 const DashboardCompanyCompanyIdSettingsRouteRoute =
   DashboardCompanyCompanyIdSettingsRouteRouteImport.update({
     id: '/settings',
@@ -105,6 +109,18 @@ const DashboardCompanyCompanyIdReportsRouteRoute =
     id: '/reports',
     path: '/reports',
     getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdUsersSecurityRolesRoute =
+  DashboardCompanyCompanyIdUsersSecurityRolesRouteImport.update({
+    id: '/security-roles',
+    path: '/security-roles',
+    getParentRoute: () => DashboardCompanyCompanyIdUsersRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdUsersListRoute =
+  DashboardCompanyCompanyIdUsersListRouteImport.update({
+    id: '/list',
+    path: '/list',
+    getParentRoute: () => DashboardCompanyCompanyIdUsersRouteRoute,
   } as any)
 const DashboardCompanyCompanyIdSettingsLocationsRoute =
   DashboardCompanyCompanyIdSettingsLocationsRouteImport.update({
@@ -142,6 +158,18 @@ const DashboardCompanyCompanyIdReportsInventoryRoute =
     path: '/inventory',
     getParentRoute: () => DashboardCompanyCompanyIdReportsRouteRoute,
   } as any)
+const DashboardCompanyCompanyIdUsersListAddUserRoute =
+  DashboardCompanyCompanyIdUsersListAddUserRouteImport.update({
+    id: '/add-user',
+    path: '/add-user',
+    getParentRoute: () => DashboardCompanyCompanyIdUsersListRoute,
+  } as any)
+const DashboardCompanyCompanyIdUsersListEditUserUserIdRoute =
+  DashboardCompanyCompanyIdUsersListEditUserUserIdRouteImport.update({
+    id: '/edit-user/$userId',
+    path: '/edit-user/$userId',
+    getParentRoute: () => DashboardCompanyCompanyIdUsersListRoute,
+  } as any)
 const ApiV1HealthServerRoute = ApiV1HealthServerRouteImport.update({
   id: '/api/v1/health',
   path: '/api/v1/health',
@@ -158,16 +186,20 @@ export interface FileRoutesByFullPath {
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
   '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
-  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
   '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
   '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
   '/dashboard/company/$companyId/settings/locations': typeof DashboardCompanyCompanyIdSettingsLocationsRoute
+  '/dashboard/company/$companyId/users/list': typeof DashboardCompanyCompanyIdUsersListRouteWithChildren
+  '/dashboard/company/$companyId/users/security-roles': typeof DashboardCompanyCompanyIdUsersSecurityRolesRoute
+  '/dashboard/company/$companyId/users/list/add-user': typeof DashboardCompanyCompanyIdUsersListAddUserRoute
+  '/dashboard/company/$companyId/users/list/edit-user/$userId': typeof DashboardCompanyCompanyIdUsersListEditUserUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -179,16 +211,20 @@ export interface FileRoutesByTo {
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
   '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
-  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
   '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
   '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
   '/dashboard/company/$companyId/settings/locations': typeof DashboardCompanyCompanyIdSettingsLocationsRoute
+  '/dashboard/company/$companyId/users/list': typeof DashboardCompanyCompanyIdUsersListRouteWithChildren
+  '/dashboard/company/$companyId/users/security-roles': typeof DashboardCompanyCompanyIdUsersSecurityRolesRoute
+  '/dashboard/company/$companyId/users/list/add-user': typeof DashboardCompanyCompanyIdUsersListAddUserRoute
+  '/dashboard/company/$companyId/users/list/edit-user/$userId': typeof DashboardCompanyCompanyIdUsersListEditUserUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -201,16 +237,20 @@ export interface FileRoutesById {
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
   '/dashboard/company/$companyId/activity-logs': typeof DashboardCompanyCompanyIdActivityLogsRoute
   '/dashboard/company/$companyId/home': typeof DashboardCompanyCompanyIdHomeRoute
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
-  '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRoute
   '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
   '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
   '/dashboard/company/$companyId/settings/locations': typeof DashboardCompanyCompanyIdSettingsLocationsRoute
+  '/dashboard/company/$companyId/users/list': typeof DashboardCompanyCompanyIdUsersListRouteWithChildren
+  '/dashboard/company/$companyId/users/security-roles': typeof DashboardCompanyCompanyIdUsersSecurityRolesRoute
+  '/dashboard/company/$companyId/users/list/add-user': typeof DashboardCompanyCompanyIdUsersListAddUserRoute
+  '/dashboard/company/$companyId/users/list/edit-user/$userId': typeof DashboardCompanyCompanyIdUsersListEditUserUserIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -224,16 +264,20 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
+    | '/dashboard/company/$companyId/users'
     | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
     | '/dashboard/company/$companyId/profile'
-    | '/dashboard/company/$companyId/users'
     | '/dashboard/company/$companyId/reports/inventory'
     | '/dashboard/company/$companyId/reports/invoice-quantity'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
     | '/dashboard/company/$companyId/settings/locations'
+    | '/dashboard/company/$companyId/users/list'
+    | '/dashboard/company/$companyId/users/security-roles'
+    | '/dashboard/company/$companyId/users/list/add-user'
+    | '/dashboard/company/$companyId/users/list/edit-user/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -245,16 +289,20 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
+    | '/dashboard/company/$companyId/users'
     | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
     | '/dashboard/company/$companyId/profile'
-    | '/dashboard/company/$companyId/users'
     | '/dashboard/company/$companyId/reports/inventory'
     | '/dashboard/company/$companyId/reports/invoice-quantity'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
     | '/dashboard/company/$companyId/settings/locations'
+    | '/dashboard/company/$companyId/users/list'
+    | '/dashboard/company/$companyId/users/security-roles'
+    | '/dashboard/company/$companyId/users/list/add-user'
+    | '/dashboard/company/$companyId/users/list/edit-user/$userId'
   id:
     | '__root__'
     | '/'
@@ -266,16 +314,20 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
+    | '/dashboard/company/$companyId/users'
     | '/dashboard/company/$companyId/activity-logs'
     | '/dashboard/company/$companyId/home'
     | '/dashboard/company/$companyId/profile'
-    | '/dashboard/company/$companyId/users'
     | '/dashboard/company/$companyId/reports/inventory'
     | '/dashboard/company/$companyId/reports/invoice-quantity'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
     | '/dashboard/company/$companyId/settings/locations'
+    | '/dashboard/company/$companyId/users/list'
+    | '/dashboard/company/$companyId/users/security-roles'
+    | '/dashboard/company/$companyId/users/list/add-user'
+    | '/dashboard/company/$companyId/users/list/edit-user/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -359,13 +411,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompanyCompanyIdRouteRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/company/$companyId/users': {
-      id: '/dashboard/company/$companyId/users'
-      path: '/users'
-      fullPath: '/dashboard/company/$companyId/users'
-      preLoaderRoute: typeof DashboardCompanyCompanyIdUsersRouteImport
-      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
-    }
     '/dashboard/company/$companyId/profile': {
       id: '/dashboard/company/$companyId/profile'
       path: '/profile'
@@ -387,6 +432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompanyCompanyIdActivityLogsRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
     }
+    '/dashboard/company/$companyId/users': {
+      id: '/dashboard/company/$companyId/users'
+      path: '/users'
+      fullPath: '/dashboard/company/$companyId/users'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdUsersRouteRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
     '/dashboard/company/$companyId/settings': {
       id: '/dashboard/company/$companyId/settings'
       path: '/settings'
@@ -400,6 +452,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/company/$companyId/reports'
       preLoaderRoute: typeof DashboardCompanyCompanyIdReportsRouteRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
+    '/dashboard/company/$companyId/users/security-roles': {
+      id: '/dashboard/company/$companyId/users/security-roles'
+      path: '/security-roles'
+      fullPath: '/dashboard/company/$companyId/users/security-roles'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdUsersSecurityRolesRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdUsersRouteRoute
+    }
+    '/dashboard/company/$companyId/users/list': {
+      id: '/dashboard/company/$companyId/users/list'
+      path: '/list'
+      fullPath: '/dashboard/company/$companyId/users/list'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdUsersListRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdUsersRouteRoute
     }
     '/dashboard/company/$companyId/settings/locations': {
       id: '/dashboard/company/$companyId/settings/locations'
@@ -442,6 +508,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/company/$companyId/reports/inventory'
       preLoaderRoute: typeof DashboardCompanyCompanyIdReportsInventoryRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdReportsRouteRoute
+    }
+    '/dashboard/company/$companyId/users/list/add-user': {
+      id: '/dashboard/company/$companyId/users/list/add-user'
+      path: '/add-user'
+      fullPath: '/dashboard/company/$companyId/users/list/add-user'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdUsersListAddUserRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdUsersListRoute
+    }
+    '/dashboard/company/$companyId/users/list/edit-user/$userId': {
+      id: '/dashboard/company/$companyId/users/list/edit-user/$userId'
+      path: '/edit-user/$userId'
+      fullPath: '/dashboard/company/$companyId/users/list/edit-user/$userId'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdUsersListEditUserUserIdRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdUsersListRoute
     }
   }
 }
@@ -499,13 +579,49 @@ const DashboardCompanyCompanyIdSettingsRouteRouteWithChildren =
     DashboardCompanyCompanyIdSettingsRouteRouteChildren,
   )
 
+interface DashboardCompanyCompanyIdUsersListRouteChildren {
+  DashboardCompanyCompanyIdUsersListAddUserRoute: typeof DashboardCompanyCompanyIdUsersListAddUserRoute
+  DashboardCompanyCompanyIdUsersListEditUserUserIdRoute: typeof DashboardCompanyCompanyIdUsersListEditUserUserIdRoute
+}
+
+const DashboardCompanyCompanyIdUsersListRouteChildren: DashboardCompanyCompanyIdUsersListRouteChildren =
+  {
+    DashboardCompanyCompanyIdUsersListAddUserRoute:
+      DashboardCompanyCompanyIdUsersListAddUserRoute,
+    DashboardCompanyCompanyIdUsersListEditUserUserIdRoute:
+      DashboardCompanyCompanyIdUsersListEditUserUserIdRoute,
+  }
+
+const DashboardCompanyCompanyIdUsersListRouteWithChildren =
+  DashboardCompanyCompanyIdUsersListRoute._addFileChildren(
+    DashboardCompanyCompanyIdUsersListRouteChildren,
+  )
+
+interface DashboardCompanyCompanyIdUsersRouteRouteChildren {
+  DashboardCompanyCompanyIdUsersListRoute: typeof DashboardCompanyCompanyIdUsersListRouteWithChildren
+  DashboardCompanyCompanyIdUsersSecurityRolesRoute: typeof DashboardCompanyCompanyIdUsersSecurityRolesRoute
+}
+
+const DashboardCompanyCompanyIdUsersRouteRouteChildren: DashboardCompanyCompanyIdUsersRouteRouteChildren =
+  {
+    DashboardCompanyCompanyIdUsersListRoute:
+      DashboardCompanyCompanyIdUsersListRouteWithChildren,
+    DashboardCompanyCompanyIdUsersSecurityRolesRoute:
+      DashboardCompanyCompanyIdUsersSecurityRolesRoute,
+  }
+
+const DashboardCompanyCompanyIdUsersRouteRouteWithChildren =
+  DashboardCompanyCompanyIdUsersRouteRoute._addFileChildren(
+    DashboardCompanyCompanyIdUsersRouteRouteChildren,
+  )
+
 interface DashboardCompanyCompanyIdRouteRouteChildren {
   DashboardCompanyCompanyIdReportsRouteRoute: typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   DashboardCompanyCompanyIdSettingsRouteRoute: typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
+  DashboardCompanyCompanyIdUsersRouteRoute: typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
   DashboardCompanyCompanyIdActivityLogsRoute: typeof DashboardCompanyCompanyIdActivityLogsRoute
   DashboardCompanyCompanyIdHomeRoute: typeof DashboardCompanyCompanyIdHomeRoute
   DashboardCompanyCompanyIdProfileRoute: typeof DashboardCompanyCompanyIdProfileRoute
-  DashboardCompanyCompanyIdUsersRoute: typeof DashboardCompanyCompanyIdUsersRoute
 }
 
 const DashboardCompanyCompanyIdRouteRouteChildren: DashboardCompanyCompanyIdRouteRouteChildren =
@@ -514,12 +630,13 @@ const DashboardCompanyCompanyIdRouteRouteChildren: DashboardCompanyCompanyIdRout
       DashboardCompanyCompanyIdReportsRouteRouteWithChildren,
     DashboardCompanyCompanyIdSettingsRouteRoute:
       DashboardCompanyCompanyIdSettingsRouteRouteWithChildren,
+    DashboardCompanyCompanyIdUsersRouteRoute:
+      DashboardCompanyCompanyIdUsersRouteRouteWithChildren,
     DashboardCompanyCompanyIdActivityLogsRoute:
       DashboardCompanyCompanyIdActivityLogsRoute,
     DashboardCompanyCompanyIdHomeRoute: DashboardCompanyCompanyIdHomeRoute,
     DashboardCompanyCompanyIdProfileRoute:
       DashboardCompanyCompanyIdProfileRoute,
-    DashboardCompanyCompanyIdUsersRoute: DashboardCompanyCompanyIdUsersRoute,
   }
 
 const DashboardCompanyCompanyIdRouteRouteWithChildren =
