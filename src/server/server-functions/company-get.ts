@@ -1,4 +1,4 @@
-import { CompanyService } from "@/services/CompanyService"
+import { CompanyService } from "@/server/services/CompanyService"
 import { createServerFn } from "@tanstack/react-start"
 import { createError } from "@tanstack/react-start/server"
 import { authMiddleware } from "./middleware/auth-middleware"

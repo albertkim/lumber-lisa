@@ -1,5 +1,5 @@
-import { CompanyService } from "@/services/CompanyService"
-import { IntegrationService } from "@/services/IntegrationService"
+import { CompanyService } from "@/server/services/CompanyService"
+import { IntegrationService } from "@/server/services/IntegrationService"
 import { createServerFn } from "@tanstack/react-start"
 import { createError } from "@tanstack/react-start/server"
 import z from "zod"

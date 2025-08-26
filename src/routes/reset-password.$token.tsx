@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ResetPasswordSchema } from "@/models"
+import { resetPassword } from "@/server/server-functions/reset-password"
+import { resetPasswordValidate } from "@/server/server-functions/reset-password-validate"
 import { useForm } from "@tanstack/react-form"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
-import { ResetPasswordSchema } from "../models/UserModel"
-import { resetPassword } from "../server-functions/reset-password"
-import { resetPasswordValidate } from "../server-functions/reset-password-validate"
 
 export const Route = createFileRoute("/reset-password/$token")({
   component: ResetPassword

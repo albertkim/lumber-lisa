@@ -1,6 +1,6 @@
 import { CreateLocationSchema, UpdateLocationSchema } from "@/models"
-import { CompanyService } from "@/services/CompanyService"
-import { LocationService } from "@/services/LocationService"
+import { CompanyService } from "@/server/services/CompanyService"
+import { LocationService } from "@/server/services/LocationService"
 import { createServerFn } from "@tanstack/react-start"
 import z from "zod"
 import { authMiddleware } from "./middleware/auth-middleware"

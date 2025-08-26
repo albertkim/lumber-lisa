@@ -1,6 +1,6 @@
+import { db } from "@/server/database"
 import { createServerFileRoute } from "@tanstack/react-start/server"
 import { sql } from "kysely"
-import { db } from "../server/database"
 
 export const ServerRoute = createServerFileRoute("/api/v1/health").methods({
   GET: async () => {

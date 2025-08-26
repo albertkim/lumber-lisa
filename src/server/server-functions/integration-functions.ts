@@ -1,6 +1,6 @@
 import { UpdateIntegrationsSchema } from "@/models"
-import { CompanyService } from "@/services/CompanyService"
-import { IntegrationService } from "@/services/IntegrationService"
+import { CompanyService } from "@/server/services/CompanyService"
+import { IntegrationService } from "@/server/services/IntegrationService"
 import { createServerFn } from "@tanstack/react-start"
 import { authMiddleware } from "./middleware/auth-middleware"
 

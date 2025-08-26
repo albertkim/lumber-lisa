@@ -14,7 +14,6 @@ function RouteComponent() {
   const { company } = Route.useRouteContext()
   const routerState = useRouterState()
   const [users, setUsers] = useState<CompanyUsersResponse["data"]>([])
-  const [total, setTotal] = useState<CompanyUsersResponse["total"]>(0)
 
   const fetchUsers = async () => {
     const usersResponse = await getCompanyUsers({

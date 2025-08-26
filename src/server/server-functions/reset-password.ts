@@ -1,6 +1,6 @@
+import { ResetPasswordSchema } from "@/models"
+import { UserService } from "@/server/services/UserService"
 import { createServerFn } from "@tanstack/react-start"
-import { ResetPasswordSchema } from "../models/UserModel"
-import { UserService } from "../services/UserService"
 
 export const resetPassword = createServerFn({ method: "POST" })
   .validator(ResetPasswordSchema)

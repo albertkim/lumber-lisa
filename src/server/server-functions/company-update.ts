@@ -1,6 +1,6 @@
 import { UpdateCompanySchema } from "@/models"
-import { ActivityLogService } from "@/services/ActivityLogService"
-import { CompanyService } from "@/services/CompanyService"
+import { ActivityLogService } from "@/server/services/ActivityLogService"
+import { CompanyService } from "@/server/services/CompanyService"
 import { createServerFn } from "@tanstack/react-start"
 import { authMiddleware } from "./middleware/auth-middleware"
 

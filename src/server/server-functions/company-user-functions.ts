@@ -1,6 +1,6 @@
 import { CreateUserSchema, UpdateUserSchema } from "@/models"
-import { CompanyService } from "@/services/CompanyService"
-import { UserService } from "@/services/UserService"
+import { CompanyService } from "@/server/services/CompanyService"
+import { UserService } from "@/server/services/UserService"
 import { createServerFn } from "@tanstack/react-start"
 import { z } from "zod"
 import { authMiddleware } from "./middleware/auth-middleware"

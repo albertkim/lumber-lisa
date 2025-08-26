@@ -1,5 +1,5 @@
+import { UserService } from "@/server/services/UserService"
 import { createServerFn } from "@tanstack/react-start"
-import { UserService } from "../services/UserService"
 
 export const resetPasswordValidate = createServerFn({ method: "POST" })
   .validator((d: { token: string }) => d)

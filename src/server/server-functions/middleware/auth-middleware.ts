@@ -1,6 +1,6 @@
+import { UserService } from "@/server/services/UserService"
 import { createMiddleware, json } from "@tanstack/react-start"
 import { getHeader } from "@tanstack/react-start/server"
-import { UserService } from "../../services/UserService"
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(async ({ next, data }) => {
   try {
