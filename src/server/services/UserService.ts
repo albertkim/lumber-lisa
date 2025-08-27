@@ -26,11 +26,6 @@ export const UserService = {
     return user
   },
 
-  async getUsers(): Promise<User[]> {
-    const users = await UserRepository.getUsers()
-    return users
-  },
-
   async createCompanyUser(companyId: number, createUser: CreateUser): Promise<User> {
     const randomPassword = Math.random().toString(36).slice(-8)
     // TODO: Get security role from user input

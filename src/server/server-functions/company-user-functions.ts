@@ -4,7 +4,7 @@ import { UserService } from "@/server/services/UserService"
 import { createServerFn } from "@tanstack/react-start"
 import { z } from "zod"
 import { authMiddleware } from "./middleware/auth-middleware"
-import { userBelongsToCompanyMiddleware } from "./middleware/user-belongs-to-company-middleware"
+import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-middleware"
 
 export const getCompanyUsers = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])

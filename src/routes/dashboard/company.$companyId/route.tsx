@@ -96,7 +96,7 @@ export function AppSidebar({ companyId, user, company }: { companyId: number; us
                     activeProps={{ className: "bg-gray-100" }}
                   >
                     <FileText />
-                    <span>LISA Reports</span>
+                    <span>LISA reports</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -127,7 +127,7 @@ export function AppSidebar({ companyId, user, company }: { companyId: number; us
                     activeProps={{ className: "bg-gray-100" }}
                   >
                     <FileText />
-                    <span>Activity Logs</span>
+                    <span>Activity logs</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

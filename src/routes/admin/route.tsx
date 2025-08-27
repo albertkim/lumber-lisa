@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { getCurrentUser } from "@/server/server-functions/get-current-user"
 import { createFileRoute, isRedirect, Link, Outlet, redirect } from "@tanstack/react-router"
-import { Building, Home } from "lucide-react"
+import { Building } from "lucide-react"
 import { useState } from "react"
 
 export const Route = createFileRoute("/admin")({
@@ -69,15 +69,7 @@ function RouteComponent() {
                     <SidebarMenuButton asChild>
                       <Link to="/admin/companies/new">
                         <Building />
-                        <span>Add Company</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link to="/dashboard">
-                        <Home />
-                        <span>Back to dashboard</span>
+                        <span>Add company</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

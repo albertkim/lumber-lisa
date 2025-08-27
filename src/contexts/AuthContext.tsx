@@ -2,7 +2,7 @@ import { Company } from "@/models/CompanyModels"
 import { User } from "@/models/UserModel"
 import { getCompany } from "@/server/server-functions/company-get"
 import { getCurrentUser } from "@/server/server-functions/get-current-user"
-import { useLocation, useRouter } from "@tanstack/react-router"
+import { useLocation, useParams, useRouter } from "@tanstack/react-router"
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
 
 interface AuthContextType {
@@ -22,6 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const location = useLocation()
+  const params = useParams({ strict: false })
+
+  // The user may also land on just /dashboard, which doesn't have a companyId param
+  const routeCompanyId = params.companyId as string | undefined
 
   const fetchUserAndCompany = async (token: string) => {
     try {
@@ -34,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const companyData = await getCompany({
         headers: { Authorization: `Bearer ${token}` },
         data: {
-          companyId: userData.company.companyId
+          companyId: routeCompanyId ? parseInt(routeCompanyId) : userData.company.companyId
         }
       })
 

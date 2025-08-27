@@ -3,7 +3,7 @@ import { CompanyService } from "@/server/services/CompanyService"
 import { IntegrationService } from "@/server/services/IntegrationService"
 import { createServerFn } from "@tanstack/react-start"
 import { authMiddleware } from "./middleware/auth-middleware"
-import { userBelongsToCompanyMiddleware } from "./middleware/user-belongs-to-company-middleware"
+import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-middleware"
 
 export const getIntegrations = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
