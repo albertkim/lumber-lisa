@@ -52,8 +52,14 @@ export function Login() {
 
   useEffect(() => {
     const fetchAuthUser = async () => {
+      const token = window.localStorage.getItem("token")
       try {
-        const user = await getCurrentUser()
+        if (!token) return
+        const user = await getCurrentUser({
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
         setAuthUser(user)
       } catch (error) {
         // User is not authenticated, which is expected for login page
@@ -72,7 +78,7 @@ export function Login() {
         {authUser && (
           <div>
             <Button
-              className="w-full"
+              className="w-full bg-blue-500 text-white"
               onClick={() =>
                 navigate({
                   to: "/"
