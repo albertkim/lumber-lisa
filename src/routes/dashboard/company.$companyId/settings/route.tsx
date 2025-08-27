@@ -1,30 +1,29 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router"
+import { useAuth } from "@/contexts/AuthContext"
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/dashboard/company/$companyId/settings")({
   component: RouteComponent
 })
 
 function RouteComponent() {
-  const { company } = Route.useRouteContext()
+  const { company } = useAuth()
+  const location = useLocation()
 
-  let activeTab = "locations"
+  let activeTab = "company"
 
   switch (true) {
-    case location.pathname.includes("/settings/billing"):
-      activeTab = "billing"
-      break
     case location.pathname.includes("/settings/company"):
       activeTab = "company"
       break
-    case location.pathname.includes("/settings/api"):
-      activeTab = "api"
-      break
-    case location.pathname.includes("/settings/taxes"):
-      activeTab = "taxes"
+    case location.pathname.includes("/settings/locations"):
+      activeTab = "locations"
       break
     case location.pathname.includes("/settings/integrations"):
       activeTab = "integrations"
+      break
+    case location.pathname.includes("/settings/billing"):
+      activeTab = "billing"
       break
   }
 

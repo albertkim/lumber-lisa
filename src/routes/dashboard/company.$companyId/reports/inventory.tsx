@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useAuth } from "@/contexts/AuthContext"
 import { LisaCurrentInventoryReport } from "@/models"
 import { getCurrentInventoryReport } from "@/server/server-functions/report-functions"
 import { createFileRoute } from "@tanstack/react-router"
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/reports/inve
 })
 
 function RouteComponent() {
-  const { company } = Route.useRouteContext()
+  const { company } = useAuth()
   const [report, setReport] = useState<LisaCurrentInventoryReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [locationFilter, setLocationFilter] = useState("")

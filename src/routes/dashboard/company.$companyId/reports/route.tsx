@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext"
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router"
 import { useEffect } from "react"
 
@@ -6,7 +7,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/reports")({
 })
 
 function RouteComponent() {
-  const { company } = Route.useRouteContext()
+  const { company } = useAuth()
   const currentRoute = useRouterState().matches.at(-1)!.routeId
   const navigate = useNavigate({ from: "/dashboard/company/$companyId/reports" })
 

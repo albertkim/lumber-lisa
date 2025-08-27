@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useAuth } from "@/contexts/AuthContext"
 import { CompanyUsersResponse } from "@/models"
 import { getCompanyUsers } from "@/server/server-functions/company-user-functions"
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router"
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/users/list")
 })
 
 function RouteComponent() {
-  const { company } = Route.useRouteContext()
+  const { company } = useAuth()
   const routerState = useRouterState()
   const [users, setUsers] = useState<CompanyUsersResponse["data"]>([])
 

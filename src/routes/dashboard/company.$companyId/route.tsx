@@ -12,6 +12,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/contexts/AuthContext"
 import { Company, User } from "@/models"
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router"
 import { FileText, Home, LogOut, Settings, User as UserIcon, Users } from "lucide-react"
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId")({
 })
 
 function RouteComponent() {
-  const { user, company } = Route.useRouteContext()
+  const { user, company } = useAuth()
   const { companyId } = Route.useParams()
   const companyIdNumber = parseInt(companyId)
 

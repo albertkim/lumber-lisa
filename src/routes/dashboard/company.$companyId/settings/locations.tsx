@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useAuth } from "@/contexts/AuthContext"
 import { CreateLocationSchema, Location } from "@/models"
 import { createLocation, getLocations, updateLocation } from "@/server/server-functions/location-functions"
 import { useForm, useStore } from "@tanstack/react-form"
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/settings/loc
 })
 
 function LocationsComponent() {
-  const { company } = Route.useRouteContext()
+  const { company } = useAuth()
   const [locations, setLocations] = useState<Location[] | null>(null)
   const [editLocation, setEditLocation] = useState<Location | null>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)

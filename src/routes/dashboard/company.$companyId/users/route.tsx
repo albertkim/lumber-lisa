@@ -1,4 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuth } from "@/contexts/AuthContext"
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 
@@ -7,7 +8,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/users")({
 })
 
 function RouteComponent() {
-  const { company } = Route.useRouteContext()
+  const { company } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 

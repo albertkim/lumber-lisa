@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/contexts/AuthContext"
 import { Integrations, UpdateIntegrationsSchema } from "@/models"
 import { getIntegrations, updateIntegrations } from "@/server/server-functions/integration-functions"
 import { useForm, useStore } from "@tanstack/react-form"
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/settings/int
 })
 
 function RouteComponent() {
-  const { user, company } = Route.useRouteContext()
+  const { company } = useAuth()
   const [integrations, setIntegrations] = useState<Integrations | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAuth } from "@/contexts/AuthContext"
 import { UpdateCompanySchema } from "@/models"
 import { updateCompany } from "@/server/server-functions/company-update"
 import { useForm, useStore } from "@tanstack/react-form"
@@ -19,7 +20,7 @@ type CompanyFormValues = {
 }
 
 function RouteComponent() {
-  const { company } = Route.useRouteContext()
+  const { company } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 

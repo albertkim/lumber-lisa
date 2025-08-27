@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext"
 import { createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/dashboard/company/$companyId/home")({
@@ -5,7 +6,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/home")({
 })
 
 function RouteComponent() {
-  const { user } = Route.useRouteContext()
+  const { user } = useAuth()
 
   return (
     <div>

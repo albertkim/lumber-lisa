@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext"
 import { UserForm } from "@/pages/UserForm"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 
@@ -6,7 +7,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/users/list/a
 })
 
 function RouteComponent() {
-  const { company, user } = Route.useRouteContext()
+  const { company, user } = useAuth()
   const navigate = useNavigate()
 
   const onClose = () => {
