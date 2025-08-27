@@ -1,12 +1,14 @@
+import { ErrorDisplay } from "@/components/ErrorDisplay"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/contexts/AuthContext"
-import { Integrations, UpdateIntegrationsSchema } from "@/models"
+import { UpdateIntegrationsSchema } from "@/models"
 import { getIntegrations, updateIntegrations } from "@/server/server-functions/integration-functions"
 import { useForm, useStore } from "@tanstack/react-form"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 export const Route = createFileRoute("/dashboard/company/$companyId/settings/integrations")({
@@ -15,22 +17,33 @@ export const Route = createFileRoute("/dashboard/company/$companyId/settings/int
 
 function RouteComponent() {
   const { company } = useAuth()
-  const [integrations, setIntegrations] = useState<Integrations | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const queryClient = useQueryClient()
 
-  const form = useForm({
-    defaultValues: {
-      companyId: company.companyId,
-      lisa: integrations?.lisa || null
-    },
-    validators: {
-      onSubmit: UpdateIntegrationsSchema
-    },
-    onSubmit: async (values) => {
-      setIsLoading(true)
-      const data = values.value
+  const {
+    data: integrations,
+    isPending: isLoadingIntegrations,
+    error: integrationsError
+  } = useQuery({
+    queryKey: ["integrations", company.companyId],
+    queryFn: async () => {
+      return await getIntegrations({
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        data: {
+          companyId: company.companyId
+        }
+      })
+    }
+  })
 
+  const {
+    mutate: updateIntegrationsMutation,
+    isPending: isUpdatingIntegrations,
+    error: updateIntegrationsError
+  } = useMutation({
+    mutationFn: async (data: { companyId: number; lisa: any }) => {
       // Convert any empty strings to null in lisa object
       if (data.lisa) {
         Object.keys(data.lisa).forEach((key) => {
@@ -40,56 +53,45 @@ function RouteComponent() {
         })
       }
 
-      try {
-        const response = await updateIntegrations({
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          },
-          data: {
-            ...data
-          }
-        })
-
-        setIntegrations(response)
-        toast("Integration settings updated successfully")
-        await fetchIntegrations()
-        setIsExpanded(false)
-      } catch (error) {
-        toast("Failed to update integration settings")
-      }
-      setIsLoading(false)
-    }
-  })
-
-  const fetchIntegrations = async () => {
-    try {
-      const response = await getIntegrations({
+      return await updateIntegrations({
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         },
-        data: {
-          companyId: company.companyId
-        }
+        data
       })
-      setIntegrations(response)
-    } catch (error) {
-      console.error("Failed to fetch integrations:", error)
+    },
+    onSuccess: () => {
+      toast("Integration settings updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["integrations", company.companyId] })
+      setIsExpanded(false)
+    },
+    onError: () => {
+      toast("Failed to update integration settings")
     }
-  }
+  })
 
-  useEffect(() => {
-    fetchIntegrations()
-  }, [company])
+  const form = useForm({
+    defaultValues: {
+      companyId: company.companyId,
+      lisa: integrations?.lisa || null
+    },
+    validators: {
+      onSubmit: UpdateIntegrationsSchema
+    },
+    onSubmit: async ({ value }) => {
+      updateIntegrationsMutation(value)
+    }
+  })
 
   const disableLisa = () => {
-    form.reset({
+    updateIntegrationsMutation({
       companyId: company.companyId,
       lisa: null
     })
-    form.handleSubmit()
   }
 
   const isLisaConfigured = integrations ? !!integrations.lisa : null
+  const isLoading = isUpdatingIntegrations
   const formErrorMap = useStore(form.store, (state) => state.errorMap)
 
   return (
@@ -185,13 +187,7 @@ function RouteComponent() {
                 </Button>
               </div>
 
-              {formErrorMap.onSubmit && (
-                <div className="text-red-500 text-sm">
-                  {Object.values(formErrorMap.onSubmit).map((error) => (
-                    <div key={error[0].message}>{error[0].message}</div>
-                  ))}
-                </div>
-              )}
+              <ErrorDisplay error={integrationsError?.message} formOnSubmitError={formErrorMap.onSubmit} />
             </form>
           </CardContent>
         )}

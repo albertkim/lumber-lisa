@@ -1,3 +1,4 @@
+import { ErrorDisplay } from "@/components/ErrorDisplay"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -5,8 +6,8 @@ import { useAuth } from "@/contexts/AuthContext"
 import { UpdateCompanySchema } from "@/models"
 import { updateCompany } from "@/server/server-functions/company-update"
 import { useForm, useStore } from "@tanstack/react-form"
+import { useMutation } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { useState } from "react"
 import { toast } from "sonner"
 
 export const Route = createFileRoute("/dashboard/company/$companyId/settings/company")({
@@ -20,9 +21,22 @@ type CompanyFormValues = {
 }
 
 function RouteComponent() {
-  const { company } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const { company, refetch } = useAuth()
+
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: async (data: CompanyFormValues) => {
+      return await updateCompany({
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        data
+      })
+    },
+    onSuccess: () => {
+      refetch()
+      toast("Company updated")
+    }
+  })
 
   const form = useForm({
     defaultValues: {
@@ -34,19 +48,7 @@ function RouteComponent() {
       onSubmit: UpdateCompanySchema
     },
     onSubmit: async ({ value }) => {
-      setIsLoading(true)
-      try {
-        await updateCompany({
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          },
-          data: value
-        })
-        toast("Company updated")
-      } catch (error: any) {
-        setErrorMessage(error.message || "There was an error updating the company")
-      }
-      setIsLoading(false)
+      mutate(value)
     }
   })
 
@@ -96,14 +98,13 @@ function RouteComponent() {
             />
           </div>
 
-          <div className="text-red-500 text-sm">
-            {errorMessage && <div>{errorMessage}</div>}
-            {formErrorMap.onSubmit &&
-              Object.values(formErrorMap.onSubmit).map((error, index) => <div key={index}>{error[0].message}</div>)}
-          </div>
+          <ErrorDisplay
+            error={error && (error.message || "There was an error updating the company")}
+            formOnSubmitError={formErrorMap.onSubmit}
+          />
 
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save"}
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Saving..." : "Save"}
           </Button>
         </div>
       </form>

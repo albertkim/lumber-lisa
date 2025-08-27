@@ -1,14 +1,16 @@
+import { ErrorDisplay } from "@/components/ErrorDisplay"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/contexts/AuthContext"
-import { CreateLocationSchema, Location } from "@/models"
+import { CreateLocation, CreateLocationSchema, Location, UpdateLocation } from "@/models"
 import { createLocation, getLocations, updateLocation } from "@/server/server-functions/location-functions"
 import { useForm, useStore } from "@tanstack/react-form"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import dayjs from "dayjs"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 export const Route = createFileRoute("/dashboard/company/$companyId/settings/locations")({
@@ -17,11 +19,66 @@ export const Route = createFileRoute("/dashboard/company/$companyId/settings/loc
 
 function LocationsComponent() {
   const { company } = useAuth()
-  const [locations, setLocations] = useState<Location[] | null>(null)
   const [editLocation, setEditLocation] = useState<Location | null>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const queryClient = useQueryClient()
+
+  const {
+    data: locations,
+    isPending: isLoadingLocations,
+    error: locationsError
+  } = useQuery({
+    queryKey: ["locations", company.companyId],
+    queryFn: async () => {
+      return await getLocations({
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        data: {
+          companyId: company.companyId
+        }
+      })
+    }
+  })
+
+  const {
+    mutate: createLocationMutation,
+    isPending: isCreatingLocation,
+    error: createLocationError
+  } = useMutation({
+    mutationFn: async (data: CreateLocation) => {
+      return await createLocation({
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        data: {
+          locationName: data.locationName,
+          locationCompanyId: company.companyId
+        }
+      })
+    },
+    onSuccess: () => {
+      toast.success("Location created")
+      queryClient.invalidateQueries({ queryKey: ["locations", company.companyId] })
+      setIsSheetOpen(false)
+    }
+  })
+
+  const {
+    mutate: updateLocationMutation,
+    isPending: isUpdatingLocation,
+    error: updateLocationError
+  } = useMutation({
+    mutationFn: async (data: UpdateLocation) => {
+      return await updateLocation({
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        data
+      })
+    },
+    onSuccess: () => {
+      toast.success("Location updated")
+      queryClient.invalidateQueries({ queryKey: ["locations", company.companyId] })
+      setIsSheetOpen(false)
+    }
+  })
 
   const form = useForm({
     defaultValues: {
@@ -32,60 +89,21 @@ function LocationsComponent() {
       onSubmit: CreateLocationSchema
     },
     onSubmit: async ({ value }) => {
-      setIsLoading(true)
       if (editLocation) {
-        try {
-          await updateLocation({
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            data: {
-              locationId: editLocation.locationId,
-              locationName: value.locationName,
-              locationCompanyId: company!.companyId
-            }
-          })
-          toast("Location updated")
-          setIsSheetOpen(false)
-          fetchLocations()
-        } catch (error) {
-          setErrorMessage("Failed to update location")
-        }
+        updateLocationMutation({
+          locationId: editLocation.locationId,
+          locationName: value.locationName,
+          locationCompanyId: company!.companyId
+        })
       } else {
-        try {
-          await createLocation({
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            data: value
-          })
-          toast("Location created")
-          fetchLocations()
-        } catch (error) {
-          setErrorMessage("Failed to create location")
-        }
+        createLocationMutation(value)
       }
-      setIsLoading(false)
     }
   })
 
+  const isLoading = isCreatingLocation || isUpdatingLocation
+
   const formErrorMap = useStore(form.store, (state) => state.errorMap)
-
-  const fetchLocations = async () => {
-    const fetchedLocations = await getLocations({
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      },
-      data: {
-        companyId: company.companyId
-      }
-    })
-    setLocations(fetchedLocations.data)
-  }
-
-  useEffect(() => {
-    fetchLocations()
-  }, [])
 
   const handleEdit = (location: Location) => {
     setEditLocation(location)
@@ -117,7 +135,7 @@ function LocationsComponent() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {locations?.map((location) => (
+          {locations?.data.map((location) => (
             <TableRow key={location.locationId}>
               <TableCell>{location.locationName}</TableCell>
               <TableCell>{dayjs(location.locationCreateDate).format("MMM DD, YYYY")}</TableCell>
@@ -157,11 +175,10 @@ function LocationsComponent() {
               />
             </div>
 
-            <div className="text-red-500 text-sm">
-              {errorMessage && <div>{errorMessage}</div>}
-              {formErrorMap.onSubmit &&
-                Object.values(formErrorMap.onSubmit).map((error, index) => <div key={index}>{error[0].message}</div>)}
-            </div>
+            <ErrorDisplay
+              error={createLocationError?.message || updateLocationError?.message}
+              formOnSubmitError={formErrorMap.onSubmit}
+            />
 
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save"}
