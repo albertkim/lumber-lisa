@@ -5,7 +5,7 @@ import { z } from "zod"
 export const UserSchema = z.object({
   userId: z.number(),
   userFullName: z.string().nullable(),
-  userEmail: z.string().email(),
+  userEmail: z.string(),
   isAdmin: z.boolean(),
   securityRoleId: z.number(),
   company: z.object({
@@ -18,8 +18,8 @@ export const CreateUserSchema = UserSchema.pick({
   userFullName: true,
   userEmail: true
 }).extend({
-  userFullName: z.string(),
-  userEmail: z.string().email()
+  userFullName: z.string().min(1, "Name cannot be empty"),
+  userEmail: z.string().min(1, "Email cannot be empty")
 })
 
 export const UpdateUserSchema = UserSchema.pick({

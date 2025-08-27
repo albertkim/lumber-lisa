@@ -40,6 +40,7 @@ export const updateCompanyUser = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(UpdateUserSchema.extend({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
+    console.log("updateCompanyUser", data)
     const companyId = data.companyId
     const updateUser = UpdateUserSchema.parse(data)
     const user = await UserService.updateUser(updateUser.userId, updateUser)

@@ -3,19 +3,44 @@ import { Input } from "@/components/ui/input"
 import { getCurrentUser } from "@/server/server-functions/get-current-user"
 import { login } from "@/server/server-functions/login"
 import { useForm } from "@tanstack/react-form"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
-import { LoginResponseSchema, LoginSchema, User } from "../models/UserModel"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { LoginResponseSchema, LoginSchema } from "../models/UserModel"
 
 export const Route = createFileRoute("/login")({
   component: Login
 })
 
 export function Login() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [authUser, setAuthUser] = useState<User | null>(null)
-  const [serverError, setServerError] = useState<string | null>(null)
-  const navigate = useNavigate()
+  const { data: authUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const token = window.localStorage.getItem("token")
+      if (!token) return null
+      return await getCurrentUser({
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+    },
+    retry: false
+  })
+
+  const {
+    mutate: loginMutation,
+    isPending: isLoggingIn,
+    error: loginError
+  } = useMutation({
+    mutationFn: async (data: { email: string; password: string }) => {
+      const result = await login({ data })
+      LoginResponseSchema.parse(result)
+      return result
+    },
+    onSuccess: (result) => {
+      window.localStorage.setItem("token", result.token)
+      window.location.href = "/dashboard"
+    }
+  })
 
   const form = useForm({
     defaultValues: {
@@ -26,48 +51,9 @@ export function Login() {
       onSubmit: LoginSchema
     },
     onSubmit: async ({ value }) => {
-      setServerError(null)
-      setIsLoading(true)
-      try {
-        const result = await login({
-          data: {
-            email: value.email,
-            password: value.password
-          }
-        })
-        LoginResponseSchema.parse(result)
-        window.localStorage.setItem("token", result.token)
-        window.location.href = "/dashboard"
-      } catch (error) {
-        if (error instanceof Error) {
-          setServerError(error.message || "Invalid credentials")
-        } else {
-          setServerError("An unexpected error occurred")
-        }
-      } finally {
-        setIsLoading(false)
-      }
+      loginMutation(value)
     }
   })
-
-  useEffect(() => {
-    const fetchAuthUser = async () => {
-      const token = window.localStorage.getItem("token")
-      try {
-        if (!token) return
-        const user = await getCurrentUser({
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        })
-        setAuthUser(user)
-      } catch (error) {
-        // User is not authenticated, which is expected for login page
-        console.log("User not authenticated")
-      }
-    }
-    fetchAuthUser()
-  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -77,16 +63,9 @@ export function Login() {
         </div>
         {authUser && (
           <div>
-            <Button
-              className="w-full bg-blue-500 text-white"
-              onClick={() =>
-                navigate({
-                  to: "/"
-                })
-              }
-            >
-              Go to Dashboard
-            </Button>
+            <Link to="/dashboard">
+              <Button className="w-full bg-blue-500 text-white">Go to Dashboard</Button>
+            </Link>
           </div>
         )}
         <form
@@ -134,11 +113,13 @@ export function Login() {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Log in"}
+          <Button type="submit" className="w-full" disabled={isLoggingIn}>
+            {isLoggingIn ? "Logging in..." : "Log in"}
           </Button>
 
-          <div className="text-red-500 text-sm">{serverError && <div>{serverError}</div>}</div>
+          <div className="text-red-500 text-sm">
+            {loginError && <div>{loginError.message || "Invalid credentials"}</div>}
+          </div>
 
           <div>
             <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">

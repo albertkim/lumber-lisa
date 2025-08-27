@@ -1,3 +1,4 @@
+import { ErrorDisplay } from "@/components/ErrorDisplay"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -8,7 +9,7 @@ import {
   updateCompanyUser
 } from "@/server/server-functions/company-user-functions"
 import { useForm, useStore } from "@tanstack/react-form"
-import { useEffect, useState } from "react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 interface Props {
@@ -25,10 +26,58 @@ type UserFormValues = {
 }
 
 export function UserForm(props: Props) {
-  const { user, company, editUserId, onClose } = props
-  const [editUser, setEditUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const { company, editUserId, onClose } = props
+  const queryClient = useQueryClient()
+
+  const { data: editUser, isLoading: isLoadingUser } = useQuery({
+    queryKey: ["user", editUserId],
+    queryFn: async () => {
+      if (!editUserId) return null
+      return await getCompanyUserById({
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        data: { companyId: company.companyId, userId: editUserId }
+      })
+    },
+    enabled: !!editUserId
+  })
+
+  const {
+    mutate: createUserMutation,
+    isPending: isCreatingUser,
+    error: createUserError
+  } = useMutation({
+    mutationFn: async (data: { userFullName: string; userEmail: string }) => {
+      return await createCompanyUser({
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        data: { companyId: company.companyId, ...data }
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users", company.companyId] })
+      toast.success("User created")
+      onClose()
+    }
+  })
+
+  const {
+    mutate: updateUserMutation,
+    isPending: isUpdatingUser,
+    error: updateUserError
+  } = useMutation({
+    mutationFn: async (data: { userFullName: string }) => {
+      if (!editUserId) throw new Error("No user ID")
+      return await updateCompanyUser({
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        data: { companyId: company.companyId, userId: editUserId, ...data }
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users", company.companyId] })
+      queryClient.invalidateQueries({ queryKey: ["user", editUserId, company.companyId] })
+      toast.success("User updated")
+      onClose()
+    }
+  })
 
   const form = useForm({
     defaultValues: {
@@ -39,72 +88,20 @@ export function UserForm(props: Props) {
       onSubmit: CreateUserSchema
     },
     onSubmit: async ({ value }) => {
-      setIsLoading(true)
       if (editUserId) {
-        try {
-          const updatedUser = await updateCompanyUser({
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            data: {
-              companyId: company.companyId,
-              userId: editUserId,
-              userFullName: value.userFullName || ""
-            }
-          })
-          toast.success("User updated")
-          onClose()
-        } catch (error) {
-          setErrorMessage("Failed to update user")
-        }
+        updateUserMutation({ userFullName: value.userFullName || "" })
       } else {
-        try {
-          const createdUser = await createCompanyUser({
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            data: {
-              companyId: company.companyId,
-              userFullName: value.userFullName || "",
-              userEmail: value.userEmail
-            }
-          })
-          toast.success("User created")
-          onClose()
-        } catch (error) {
-          setErrorMessage("Failed to create user")
-        }
+        createUserMutation({
+          userFullName: value.userFullName || "",
+          userEmail: value.userEmail
+        })
       }
-      setIsLoading(false)
     }
   })
 
+  const isLoading = isCreatingUser || isUpdatingUser
   const formErrorMap = useStore(form.store, (state) => state.errorMap)
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (editUserId) {
-        const user = await getCompanyUserById({
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          },
-          data: {
-            companyId: company.companyId,
-            userId: editUserId
-          }
-        })
-        if (user) {
-          setEditUser(user)
-          form.reset({
-            userId: user.userId,
-            userFullName: user.userFullName || "",
-            userEmail: user.userEmail || ""
-          })
-        }
-      }
-    }
-    fetchUser()
-  }, [editUserId])
+  const errorMessage = createUserError?.message || updateUserError?.message
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
@@ -157,11 +154,7 @@ export function UserForm(props: Props) {
             />
           </div>
 
-          <div className="text-red-500 text-sm">
-            {errorMessage && <div>{errorMessage}</div>}
-            {formErrorMap.onSubmit &&
-              Object.values(formErrorMap.onSubmit).map((error, index) => <div key={index}>{error[0].message}</div>)}
-          </div>
+          <ErrorDisplay error={errorMessage} formOnSubmitError={formErrorMap.onSubmit} />
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>

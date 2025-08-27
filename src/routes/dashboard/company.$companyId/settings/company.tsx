@@ -24,10 +24,6 @@ function RouteComponent() {
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  if (!company) {
-    return null
-  }
-
   const form = useForm({
     defaultValues: {
       companyId: company.companyId,

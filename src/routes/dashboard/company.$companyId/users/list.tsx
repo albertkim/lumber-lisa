@@ -2,10 +2,9 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/contexts/AuthContext"
-import { CompanyUsersResponse } from "@/models"
 import { getCompanyUsers } from "@/server/server-functions/company-user-functions"
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/dashboard/company/$companyId/users/list")({
   component: RouteComponent
@@ -13,29 +12,22 @@ export const Route = createFileRoute("/dashboard/company/$companyId/users/list")
 
 function RouteComponent() {
   const { company } = useAuth()
-  const routerState = useRouterState()
-  const [users, setUsers] = useState<CompanyUsersResponse["data"]>([])
 
-  const fetchUsers = async () => {
-    const usersResponse = await getCompanyUsers({
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      },
-      data: {
-        companyId: company!.companyId
-      }
-    })
-    setUsers(usersResponse.data)
-  }
+  const { data: usersResponse, isLoading } = useQuery({
+    queryKey: ["users", company.companyId],
+    queryFn: async () => {
+      return await getCompanyUsers({
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        data: {
+          companyId: company.companyId
+        }
+      })
+    }
+  })
 
-  useEffect(() => {
-    fetchUsers()
-  }, [company])
-
-  // Refresh users when navigation state changes
-  useEffect(() => {
-    fetchUsers()
-  }, [routerState.status])
+  const users = usersResponse?.data || []
 
   return (
     <div>
@@ -47,7 +39,9 @@ function RouteComponent() {
           Add user
         </Link>
       </Button>
-      {users ? (
+      {isLoading ? (
+        <Skeleton className="h-10 w-full" />
+      ) : (
         <Table>
           <TableHeader>
             <TableRow>
@@ -74,8 +68,6 @@ function RouteComponent() {
             ))}
           </TableBody>
         </Table>
-      ) : (
-        <Skeleton className="h-10 w-full" />
       )}
       <Outlet />
     </div>
