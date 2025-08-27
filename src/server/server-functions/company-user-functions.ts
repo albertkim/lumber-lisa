@@ -4,9 +4,10 @@ import { UserService } from "@/server/services/UserService"
 import { createServerFn } from "@tanstack/react-start"
 import { z } from "zod"
 import { authMiddleware } from "./middleware/auth-middleware"
+import { userBelongsToCompanyMiddleware } from "./middleware/user-belongs-to-company-middleware"
 
 export const getCompanyUsers = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator((d: { companyId: number }) => d)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
@@ -16,7 +17,7 @@ export const getCompanyUsers = createServerFn({ method: "POST" })
   })
 
 export const getCompanyUserById = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator((d: { companyId: number; userId: number }) => d)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
@@ -26,7 +27,7 @@ export const getCompanyUserById = createServerFn({ method: "POST" })
   })
 
 export const createCompanyUser = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(CreateUserSchema.extend({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
@@ -36,7 +37,7 @@ export const createCompanyUser = createServerFn({ method: "POST" })
   })
 
 export const updateCompanyUser = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(UpdateUserSchema.extend({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId

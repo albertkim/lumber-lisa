@@ -3,9 +3,10 @@ import { ActivityLogService } from "@/server/services/ActivityLogService"
 import { CompanyService } from "@/server/services/CompanyService"
 import { createServerFn } from "@tanstack/react-start"
 import { authMiddleware } from "./middleware/auth-middleware"
+import { userBelongsToCompanyMiddleware } from "./middleware/user-belongs-to-company-middleware"
 
 export const updateCompany = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(UpdateCompanySchema)
   .handler(async ({ data, context }) => {
     const user = context.user

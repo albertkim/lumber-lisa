@@ -4,9 +4,10 @@ import { LocationService } from "@/server/services/LocationService"
 import { createServerFn } from "@tanstack/react-start"
 import z from "zod"
 import { authMiddleware } from "./middleware/auth-middleware"
+import { userBelongsToCompanyMiddleware } from "./middleware/user-belongs-to-company-middleware"
 
 export const getLocations = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(z.object({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
@@ -19,7 +20,7 @@ export const getLocations = createServerFn({ method: "POST" })
   })
 
 export const createLocation = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(CreateLocationSchema)
   .handler(async ({ data, context }) => {
     const createLocation = CreateLocationSchema.parse(data)
@@ -28,7 +29,7 @@ export const createLocation = createServerFn({ method: "POST" })
   })
 
 export const updateLocation = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(UpdateLocationSchema)
   .handler(async ({ data, context }) => {
     const updateLocation = UpdateLocationSchema.parse(data)

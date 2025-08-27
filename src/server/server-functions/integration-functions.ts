@@ -3,9 +3,10 @@ import { CompanyService } from "@/server/services/CompanyService"
 import { IntegrationService } from "@/server/services/IntegrationService"
 import { createServerFn } from "@tanstack/react-start"
 import { authMiddleware } from "./middleware/auth-middleware"
+import { userBelongsToCompanyMiddleware } from "./middleware/user-belongs-to-company-middleware"
 
 export const getIntegrations = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator((d: { companyId: number }) => d)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
@@ -15,7 +16,7 @@ export const getIntegrations = createServerFn({ method: "POST" })
   })
 
 export const updateIntegrations = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
   .validator(UpdateIntegrationsSchema)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
