@@ -1,4 +1,10 @@
-import { Company, Integrations, LisaReport, UpdateIntegrations } from "@/models"
+import {
+  Company,
+  Integrations,
+  LisaCurrentInventoryReport,
+  LisaInventoryQuantityReport,
+  UpdateIntegrations
+} from "@/models"
 import { IntegrationsRepository } from "@/server/repositories/IntegrationsRepository"
 import { executeMSSQLQuery, MSSQLConnectionConfig } from "@/server/utilities/MSSQLUtlities"
 import { createError } from "@tanstack/react-start/server"
@@ -59,19 +65,19 @@ const LISA_INVOICE_QUANTITY_LEFT_QUERY = `
 
 const LISA_CURRENT_INVENTORY_QUERY = `
   SELECT
-    p.Prodid,
-    p.Descrip AS ProductDescription,
-    p.Species AS ProductSpecies,
-    p.Grade AS ProductGrade,
-    p.Thick AS ProductThickness,
-    p.Width AS ProductWidth,
-    t.Locid AS LocationId,
-    ig.Name AS InventoryGroupName, -- Assuming you want the name from Invgrp
-    t.Grpid AS InventoryGroupId,   -- Still including Grpid if needed separately
-    SUM(ISNULL(t.Pcs, 0)) AS TotalPieces,
-    SUM(ISNULL(t.Fbm, 0)) AS TotalFBM,
-    SUM(ISNULL(t.M3, 0)) AS TotalM3,
-    COUNT(DISTINCT t.Tagid) AS NumberOfTags -- Number of unique bundles/tags
+    p.Prodid AS [Product ID],
+    p.Descrip AS [Product Description],
+    p.Species AS [Product Species],
+    p.Grade AS [Product Grade],
+    p.Thick AS [Product Thickness],
+    p.Width AS [Product Width],
+    t.Locid AS [Location ID],
+    ig.Name AS [Inventory Group Name],
+    t.Grpid AS [Inventory Group ID],
+    SUM(ISNULL(t.Pcs, 0)) AS [Total Pieces],
+    SUM(ISNULL(t.Fbm, 0)) AS [Total FBM],
+    SUM(ISNULL(t.M3, 0)) AS [Total M3],
+    COUNT(DISTINCT t.Tagid) AS [Number of Tags]
   FROM
     dbo.Tag t
   JOIN
@@ -130,7 +136,7 @@ export const IntegrationService = {
     return IntegrationsRepository.updateIntegrations(companyId, integrations)
   },
 
-  async runLisaQuery(company: Company): Promise<LisaReport> {
+  async runLisaInventoryQuantityQuery(company: Company): Promise<LisaInventoryQuantityReport> {
     const integrations = await this.getIntegrations(company.companyId)
     if (!integrations.lisa) {
       throw new Error("Lisa is not configured")
@@ -148,6 +154,27 @@ export const IntegrationService = {
 
     return {
       data: result
-    } as LisaReport
+    } as LisaInventoryQuantityReport
+  },
+
+  async runLisaCurrentInventoryQuery(company: Company): Promise<LisaCurrentInventoryReport> {
+    const integrations = await this.getIntegrations(company.companyId)
+    if (!integrations.lisa) {
+      throw new Error("Lisa is not configured")
+    }
+
+    const connectionConfig: MSSQLConnectionConfig = {
+      username: integrations.lisa.databaseUsername,
+      password: integrations.lisa.databasePassword,
+      database: integrations.lisa.databaseName,
+      host: integrations.lisa.databaseHost,
+      port: 1433
+    }
+
+    const result = await executeMSSQLQuery(connectionConfig, LISA_CURRENT_INVENTORY_QUERY)
+
+    return {
+      data: result
+    } as LisaCurrentInventoryReport
   }
 }

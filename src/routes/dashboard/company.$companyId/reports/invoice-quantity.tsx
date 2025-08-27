@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
-import { LisaReport } from "@/models"
+import { LisaInventoryQuantityReport } from "@/models"
 import { getInvoiceQuantityReport } from "@/server/server-functions/report-functions"
 import { createFileRoute } from "@tanstack/react-router"
 import dayjs from "dayjs"
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/dashboard/company/$companyId/reports/invo
 
 function RouteComponent() {
   const { company } = Route.useRouteContext()
-  const [report, setReport] = useState<LisaReport | null>(null)
+  const [report, setReport] = useState<LisaInventoryQuantityReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 300)

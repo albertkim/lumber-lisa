@@ -28,7 +28,7 @@ export const UpdateIntegrationsSchema = IntegrationsSchema.partial().extend({
 
 export type UpdateIntegrations = z.infer<typeof UpdateIntegrationsSchema>
 
-export const LisaReportSchema = z.object({
+export const LisaInventoryQuantityReportSchema = z.object({
   data: z.array(
     z.object({
       "Order ID": z.string(),
@@ -47,4 +47,26 @@ export const LisaReportSchema = z.object({
   )
 })
 
-export type LisaReport = z.infer<typeof LisaReportSchema>
+export type LisaInventoryQuantityReport = z.infer<typeof LisaInventoryQuantityReportSchema>
+
+export const LisaCurrentInventoryReportSchema = z.object({
+  data: z.array(
+    z.object({
+      "Product ID": z.string(),
+      "Product Description": z.string().nullable(),
+      "Product Species": z.string().nullable(),
+      "Product Grade": z.string().nullable(),
+      "Product Thickness": z.string().nullable(),
+      "Product Width": z.string().nullable(),
+      "Location ID": z.string().nullable(),
+      "Inventory Group Name": z.string().nullable(),
+      "Inventory Group ID": z.string().nullable(),
+      "Total Pieces": z.number().nullable(),
+      "Total FBM": z.number().nullable(),
+      "Total M3": z.number().nullable(),
+      "Number of Tags": z.number().nullable()
+    })
+  )
+})
+
+export type LisaCurrentInventoryReport = z.infer<typeof LisaCurrentInventoryReportSchema>
