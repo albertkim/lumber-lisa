@@ -4,7 +4,14 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 
 import appCss from "../styles.css?url"
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Disable automatic retries (default is 3)
+      retry: false
+    }
+  }
+})
 
 export const Route = createRootRoute({
   head: () => ({
@@ -38,9 +45,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
         <Toaster />
         <Scripts />
       </body>
