@@ -8,7 +8,6 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 interface AuthContextType {
   user: User
   company: Company
-  isLoading: boolean
   login: (token: string) => Promise<void>
   logout: () => void
   refetch: () => Promise<void>
@@ -101,7 +100,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         company,
-        isLoading,
         login,
         logout,
         refetch

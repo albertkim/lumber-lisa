@@ -23,7 +23,7 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col md:flex-row gap-4">
-      <div className="sidebar mb-4 md:mb-0 md:w-64">
+      <div className="sidebar mb-4 md:mb-0 md:w-64 flex-shrink-0">
         <h1 className="text-lg font-semibold mb-4">LISA Reports</h1>
         <nav className="reports-nav flex flex-wrap md:flex-col gap-1 text-sm">
           <Link
@@ -41,6 +41,14 @@ function RouteComponent() {
             params={{ companyId: company!.companyId.toString() }}
           >
             Inventory
+          </Link>
+          <Link
+            className="hover:bg-gray-100 rounded p-2"
+            activeProps={{ className: "bg-gray-100 font-medium" }}
+            to="/dashboard/company/$companyId/reports/production-run"
+            params={{ companyId: company!.companyId.toString() }}
+          >
+            Production run
           </Link>
         </nav>
       </div>

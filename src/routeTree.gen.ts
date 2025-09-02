@@ -32,6 +32,7 @@ import { Route as DashboardCompanyCompanyIdSettingsLocationsRouteImport } from '
 import { Route as DashboardCompanyCompanyIdSettingsIntegrationsRouteImport } from './routes/dashboard/company.$companyId/settings/integrations'
 import { Route as DashboardCompanyCompanyIdSettingsCompanyRouteImport } from './routes/dashboard/company.$companyId/settings/company'
 import { Route as DashboardCompanyCompanyIdSettingsBillingRouteImport } from './routes/dashboard/company.$companyId/settings/billing'
+import { Route as DashboardCompanyCompanyIdReportsProductionRunRouteImport } from './routes/dashboard/company.$companyId/reports/production-run'
 import { Route as DashboardCompanyCompanyIdReportsInvoiceQuantityRouteImport } from './routes/dashboard/company.$companyId/reports/invoice-quantity'
 import { Route as DashboardCompanyCompanyIdReportsInventoryRouteImport } from './routes/dashboard/company.$companyId/reports/inventory'
 import { Route as DashboardCompanyCompanyIdUsersListAddUserRouteImport } from './routes/dashboard/company.$companyId/users/list.add-user'
@@ -158,6 +159,12 @@ const DashboardCompanyCompanyIdSettingsBillingRoute =
     path: '/billing',
     getParentRoute: () => DashboardCompanyCompanyIdSettingsRouteRoute,
   } as any)
+const DashboardCompanyCompanyIdReportsProductionRunRoute =
+  DashboardCompanyCompanyIdReportsProductionRunRouteImport.update({
+    id: '/production-run',
+    path: '/production-run',
+    getParentRoute: () => DashboardCompanyCompanyIdReportsRouteRoute,
+  } as any)
 const DashboardCompanyCompanyIdReportsInvoiceQuantityRoute =
   DashboardCompanyCompanyIdReportsInvoiceQuantityRouteImport.update({
     id: '/invoice-quantity',
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
   '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
   '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
+  '/dashboard/company/$companyId/reports/production-run': typeof DashboardCompanyCompanyIdReportsProductionRunRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
@@ -233,6 +241,7 @@ export interface FileRoutesByTo {
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
   '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
   '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
+  '/dashboard/company/$companyId/reports/production-run': typeof DashboardCompanyCompanyIdReportsProductionRunRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
@@ -261,6 +270,7 @@ export interface FileRoutesById {
   '/dashboard/company/$companyId/profile': typeof DashboardCompanyCompanyIdProfileRoute
   '/dashboard/company/$companyId/reports/inventory': typeof DashboardCompanyCompanyIdReportsInventoryRoute
   '/dashboard/company/$companyId/reports/invoice-quantity': typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
+  '/dashboard/company/$companyId/reports/production-run': typeof DashboardCompanyCompanyIdReportsProductionRunRoute
   '/dashboard/company/$companyId/settings/billing': typeof DashboardCompanyCompanyIdSettingsBillingRoute
   '/dashboard/company/$companyId/settings/company': typeof DashboardCompanyCompanyIdSettingsCompanyRoute
   '/dashboard/company/$companyId/settings/integrations': typeof DashboardCompanyCompanyIdSettingsIntegrationsRoute
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId/profile'
     | '/dashboard/company/$companyId/reports/inventory'
     | '/dashboard/company/$companyId/reports/invoice-quantity'
+    | '/dashboard/company/$companyId/reports/production-run'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId/profile'
     | '/dashboard/company/$companyId/reports/inventory'
     | '/dashboard/company/$companyId/reports/invoice-quantity'
+    | '/dashboard/company/$companyId/reports/production-run'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
@@ -344,6 +356,7 @@ export interface FileRouteTypes {
     | '/dashboard/company/$companyId/profile'
     | '/dashboard/company/$companyId/reports/inventory'
     | '/dashboard/company/$companyId/reports/invoice-quantity'
+    | '/dashboard/company/$companyId/reports/production-run'
     | '/dashboard/company/$companyId/settings/billing'
     | '/dashboard/company/$companyId/settings/company'
     | '/dashboard/company/$companyId/settings/integrations'
@@ -533,6 +546,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCompanyCompanyIdSettingsBillingRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdSettingsRouteRoute
     }
+    '/dashboard/company/$companyId/reports/production-run': {
+      id: '/dashboard/company/$companyId/reports/production-run'
+      path: '/production-run'
+      fullPath: '/dashboard/company/$companyId/reports/production-run'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdReportsProductionRunRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdReportsRouteRoute
+    }
     '/dashboard/company/$companyId/reports/invoice-quantity': {
       id: '/dashboard/company/$companyId/reports/invoice-quantity'
       path: '/invoice-quantity'
@@ -592,6 +612,7 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 interface DashboardCompanyCompanyIdReportsRouteRouteChildren {
   DashboardCompanyCompanyIdReportsInventoryRoute: typeof DashboardCompanyCompanyIdReportsInventoryRoute
   DashboardCompanyCompanyIdReportsInvoiceQuantityRoute: typeof DashboardCompanyCompanyIdReportsInvoiceQuantityRoute
+  DashboardCompanyCompanyIdReportsProductionRunRoute: typeof DashboardCompanyCompanyIdReportsProductionRunRoute
 }
 
 const DashboardCompanyCompanyIdReportsRouteRouteChildren: DashboardCompanyCompanyIdReportsRouteRouteChildren =
@@ -600,6 +621,8 @@ const DashboardCompanyCompanyIdReportsRouteRouteChildren: DashboardCompanyCompan
       DashboardCompanyCompanyIdReportsInventoryRoute,
     DashboardCompanyCompanyIdReportsInvoiceQuantityRoute:
       DashboardCompanyCompanyIdReportsInvoiceQuantityRoute,
+    DashboardCompanyCompanyIdReportsProductionRunRoute:
+      DashboardCompanyCompanyIdReportsProductionRunRoute,
   }
 
 const DashboardCompanyCompanyIdReportsRouteRouteWithChildren =

@@ -37,8 +37,10 @@ function RouteComponent() {
   const { company } = useAuth()
   const [report, setReport] = useState<LisaInventoryQuantityReport | null>(null)
   const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const [productSearchQuery, setProductSearchQuery] = useState("")
+  const [orderSearchQuery, setOrderSearchQuery] = useState("")
+  const debouncedProductSearchQuery = useDebounce(productSearchQuery, 300)
+  const debouncedOrderSearchQuery = useDebounce(orderSearchQuery, 300)
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -74,16 +76,22 @@ function RouteComponent() {
   }
 
   const filteredData =
-    report?.data?.filter((row) => {
-      if (!debouncedSearchQuery) return true
-      const searchLower = debouncedSearchQuery.toLowerCase()
-      return (
-        row["Order ID"]?.toLowerCase().includes(searchLower) ||
-        row["Customer Name"]?.toLowerCase().includes(searchLower) ||
-        row["Customer Order ID"]?.toLowerCase().includes(searchLower) ||
-        row["Order First Description"]?.toLowerCase().includes(searchLower)
-      )
-    }) ?? []
+    report?.data
+      ?.filter((row) => {
+        if (!debouncedOrderSearchQuery) return true
+        const searchLower = debouncedOrderSearchQuery.toLowerCase()
+        return (
+          row["Order ID"]?.toLowerCase().includes(searchLower) ||
+          row["Customer Name"]?.toLowerCase().includes(searchLower) ||
+          row["Customer Order ID"]?.toLowerCase().includes(searchLower) ||
+          row["Order First Description"]?.toLowerCase().includes(searchLower)
+        )
+      })
+      .filter((row) => {
+        if (!debouncedProductSearchQuery) return true
+        const searchLower = debouncedProductSearchQuery.toLowerCase()
+        return row["Product Description"]?.toLowerCase().includes(searchLower)
+      }) ?? []
 
   return (
     <div className="space-y-4">
@@ -93,9 +101,18 @@ function RouteComponent() {
         <div className="relative">
           <SearchIcon className="absolute left-2 top-2.5 h-4 w-4" />
           <Input
+            placeholder="Search products"
+            value={productSearchQuery}
+            onChange={(e) => setProductSearchQuery(e.target.value)}
+            className="pl-8 max-w-72"
+          />
+        </div>
+        <div className="relative">
+          <SearchIcon className="absolute left-2 top-2.5 h-4 w-4" />
+          <Input
             placeholder="Search orders"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={orderSearchQuery}
+            onChange={(e) => setOrderSearchQuery(e.target.value)}
             className="pl-8 max-w-72"
           />
         </div>
