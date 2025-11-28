@@ -1,3 +1,4 @@
+import { User } from "@/models"
 import {
   Container,
   Head,
@@ -10,7 +11,6 @@ import {
   Tailwind,
   Text
 } from "@react-email/components"
-import { User } from "../models"
 
 export async function generateWelcomeEmail(user: User, token: string) {
   return render(

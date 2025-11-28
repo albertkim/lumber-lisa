@@ -8,7 +8,7 @@ import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-
 
 export const getCompanyUsers = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator((d: { companyId: number }) => d)
+  .inputValidator((d: { companyId: number }) => d)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const company = await CompanyService.getCompanyById(companyId)
@@ -18,7 +18,7 @@ export const getCompanyUsers = createServerFn({ method: "POST" })
 
 export const getCompanyUserById = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator((d: { companyId: number; userId: number }) => d)
+  .inputValidator((d: { companyId: number; userId: number }) => d)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const userId = data.userId
@@ -28,7 +28,7 @@ export const getCompanyUserById = createServerFn({ method: "POST" })
 
 export const createCompanyUser = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(CreateUserSchema.extend({ companyId: z.number() }))
+  .inputValidator(CreateUserSchema.extend({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const createUser = CreateUserSchema.parse(data)
@@ -38,7 +38,7 @@ export const createCompanyUser = createServerFn({ method: "POST" })
 
 export const updateCompanyUser = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(UpdateUserSchema.extend({ companyId: z.number() }))
+  .inputValidator(UpdateUserSchema.extend({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     console.log("updateCompanyUser", data)
     const companyId = data.companyId

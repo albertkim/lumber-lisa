@@ -16,15 +16,17 @@ async function createInitialUserIfNotExists() {
     const { user, company } = await AdminService.registerNewCompany({
       companyName: "Lumber Co",
       companySubscriptionStatus: "active",
-      userEmail: adminEmail,
-      userFullName: "Albert",
-      userPassword: adminPassword
+      initialUser: {
+        userEmail: adminEmail,
+        userFullName: "Albert",
+        userPassword: adminPassword
+      }
     })
     await db.updateTable("users").set({ user_is_admin: true }).where("user_email", "=", adminEmail).execute()
     console.log(`Admin user created: ${adminEmail} with password: ${adminPassword}`)
     // Seed the database with some data
     console.log("Seeding database with some data...")
-    await SeedDataService.seedData(user, company)
+    await SeedDataService.seedData(user!, company)
     console.log("Database seeding complete")
   }
 }

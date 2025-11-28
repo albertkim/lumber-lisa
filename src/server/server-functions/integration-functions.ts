@@ -7,7 +7,7 @@ import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-
 
 export const getIntegrations = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator((d: { companyId: number }) => d)
+  .inputValidator((d: { companyId: number }) => d)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const company = await CompanyService.getCompanyById(companyId)
@@ -17,7 +17,7 @@ export const getIntegrations = createServerFn({ method: "POST" })
 
 export const updateIntegrations = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(UpdateIntegrationsSchema)
+  .inputValidator(UpdateIntegrationsSchema)
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const updateIntegration = UpdateIntegrationsSchema.parse(data)

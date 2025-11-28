@@ -1,6 +1,5 @@
 import { CreateLocation, Location, LocationSchema, UpdateLocation } from "@/models"
 import { db } from "@/server/database"
-import { createError } from "@tanstack/react-start/server"
 
 export const LocationRepository = {
   async getLocationById(companyId: number, locationId: number): Promise<Location> {
@@ -12,10 +11,7 @@ export const LocationRepository = {
       .executeTakeFirst()
 
     if (!locationResult) {
-      throw createError({
-        status: 404,
-        message: "Location not found"
-      })
+      throw Error("Location not found")
     }
 
     const location: Location = {
@@ -59,10 +55,7 @@ export const LocationRepository = {
       .executeTakeFirst()
 
     if (!createLocationResult) {
-      throw createError({
-        status: 500,
-        message: "Failed to create location"
-      })
+      throw Error("Failed to create location")
     }
 
     return this.getLocationById(location.locationCompanyId, createLocationResult.location_id)
@@ -70,10 +63,7 @@ export const LocationRepository = {
 
   async updateLocation(location: UpdateLocation): Promise<Location> {
     if (!location.locationId || !location.locationCompanyId) {
-      throw createError({
-        status: 400,
-        message: "Location ID and Company ID are required"
-      })
+      throw Error("Location ID and Company ID are required")
     }
 
     const updateLocationResult = await db
@@ -87,12 +77,9 @@ export const LocationRepository = {
       .executeTakeFirst()
 
     if (!updateLocationResult) {
-      throw createError({
-        status: 404,
-        message: "Location not found"
-      })
+      throw Error("Location not found")
     }
 
-    return this.getLocationById(location.locationCompanyId, location.locationId)
+    return LocationRepository.getLocationById(location.locationCompanyId, location.locationId)
   }
 }

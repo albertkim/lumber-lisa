@@ -1,6 +1,5 @@
 import { CreateSecurityRole, SecurityRole, SecurityRoleSchema } from "@/models"
 import { db } from "@/server/database"
-import { createError } from "@tanstack/react-start/server"
 
 async function getSecurityRole(
   companyId: number,
@@ -31,10 +30,7 @@ async function getSecurityRole(
   const securityRoleWithPermissionAssignments = await query.execute()
 
   if (securityRoleWithPermissionAssignments.length === 0) {
-    throw createError({
-      status: 404,
-      message: "Security role not found"
-    })
+    throw Error("Security role not found")
   }
 
   const permissions = await db.selectFrom("permissions").selectAll().execute()
@@ -149,10 +145,7 @@ export const SecurityRoleRepository = {
       .executeTakeFirst()
 
     if (!createSecurityRoleResult) {
-      throw createError({
-        status: 500,
-        message: "Failed to create security role"
-      })
+      throw Error("Failed to create security role")
     }
 
     const createSecurityRolePermissionsResult = await db
@@ -168,10 +161,7 @@ export const SecurityRoleRepository = {
       .execute()
 
     if (!createSecurityRolePermissionsResult) {
-      throw createError({
-        status: 500,
-        message: "Failed to create security role permissions"
-      })
+      throw Error("Failed to create security role permissions")
     }
 
     return await this.getSecurityRoleById(securityRole.companyId, createSecurityRoleResult.security_role_id)

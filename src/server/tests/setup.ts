@@ -41,16 +41,18 @@ beforeAll(async () => {
   const createCompanyResponse = await AdminService.registerNewCompany({
     companyName: "Lumber Co",
     companySubscriptionStatus: "active",
-    userEmail: Globals.adminUser.userEmail,
-    userFullName: Globals.adminUser.userFullName,
-    userPassword: Globals.adminUser.userPassword
+    initialUser: {
+      userEmail: Globals.adminUser.userEmail,
+      userFullName: Globals.adminUser.userFullName,
+      userPassword: Globals.adminUser.userPassword
+    }
   })
 
   console.log(createCompanyResponse)
 
   Globals.company.companyId = createCompanyResponse.company.companyId
   Globals.location.locationCompanyId = createCompanyResponse.company.companyId
-  Globals.adminUser.userId = createCompanyResponse.user.userId
+  Globals.adminUser.userId = createCompanyResponse.user!.userId
 
   // Run DB query to set user as admin
   await db.updateTable("users").set({ user_is_admin: true }).where("user_id", "=", Globals.adminUser.userId).execute()

@@ -1,6 +1,5 @@
 import { Company, CompanySchema, DefaultMeasurementUnit, UpdateCompany } from "@/models"
 import { db } from "@/server/database"
-import { createError } from "@tanstack/react-start/server"
 
 export const CompanyRepository = {
   async getCompanyById(companyId: number): Promise<Company> {
@@ -12,10 +11,7 @@ export const CompanyRepository = {
       .where("company_id", "=", companyId)
       .executeTakeFirst()
     if (!companyResult) {
-      throw createError({
-        status: 404,
-        message: "Company not found"
-      })
+      throw Error("Company not found")
     }
 
     const locationsResult = await db

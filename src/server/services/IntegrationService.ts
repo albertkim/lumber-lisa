@@ -7,7 +7,6 @@ import {
 } from "@/models"
 import { IntegrationsRepository } from "@/server/repositories/IntegrationsRepository"
 import { executeMSSQLQuery, MSSQLConnectionConfig } from "@/server/utilities/MSSQLUtlities"
-import { createError } from "@tanstack/react-start/server"
 
 const LISA_TEST_QUERY = `select 1+1`
 
@@ -121,16 +120,10 @@ export const IntegrationService = {
       try {
         const result = await executeMSSQLQuery(connectionConfig, LISA_TEST_QUERY)
         if (result.length === 0) {
-          throw createError({
-            status: 400,
-            message: "Failed to connect to Lisa database"
-          })
+          throw Error("Failed to connect to Lisa database")
         }
       } catch (error) {
-        throw createError({
-          status: 400,
-          message: "Failed to connect to Lisa database"
-        })
+        throw Error("Failed to connect to Lisa database")
       }
     }
     return IntegrationsRepository.updateIntegrations(companyId, integrations)

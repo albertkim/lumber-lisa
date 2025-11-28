@@ -3,7 +3,7 @@ import { UserService } from "@/server/services/UserService"
 import { createServerFn } from "@tanstack/react-start"
 
 export const resetPassword = createServerFn({ method: "POST" })
-  .validator(ResetPasswordSchema)
+  .inputValidator(ResetPasswordSchema)
   .handler(async ({ data }) => {
     try {
       const { token, password } = data

@@ -7,7 +7,7 @@ import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-
 
 export const updateCompany = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(UpdateCompanySchema)
+  .inputValidator(UpdateCompanySchema)
   .handler(async ({ data, context }) => {
     const user = context.user
     const updateCompany = UpdateCompanySchema.parse(data)

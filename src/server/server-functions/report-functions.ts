@@ -7,7 +7,7 @@ import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-
 
 export const getInvoiceQuantityReport = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(z.object({ companyId: z.number() }))
+  .inputValidator(z.object({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const company = await CompanyService.getCompanyById(companyId)
@@ -17,7 +17,7 @@ export const getInvoiceQuantityReport = createServerFn({ method: "POST" })
 
 export const getCurrentInventoryReport = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(z.object({ companyId: z.number() }))
+  .inputValidator(z.object({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
 

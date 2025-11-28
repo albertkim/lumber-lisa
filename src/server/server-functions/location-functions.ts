@@ -8,7 +8,7 @@ import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-
 
 export const getLocations = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(z.object({ companyId: z.number() }))
+  .inputValidator(z.object({ companyId: z.number() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const company = await CompanyService.getCompanyById(companyId)
@@ -21,7 +21,7 @@ export const getLocations = createServerFn({ method: "POST" })
 
 export const createLocation = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(CreateLocationSchema)
+  .inputValidator(CreateLocationSchema)
   .handler(async ({ data, context }) => {
     const createLocation = CreateLocationSchema.parse(data)
     const createdLocation = await LocationService.createLocation(createLocation)
@@ -30,7 +30,7 @@ export const createLocation = createServerFn({ method: "POST" })
 
 export const updateLocation = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(UpdateLocationSchema)
+  .inputValidator(UpdateLocationSchema)
   .handler(async ({ data, context }) => {
     const updateLocation = UpdateLocationSchema.parse(data)
     const updatedLocation = await LocationService.updateLocation(updateLocation)

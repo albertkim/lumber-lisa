@@ -1,6 +1,5 @@
 import { LoginResponse, UpdateUser, User, UserSchema } from "@/models"
 import { db } from "@/server/database"
-import { createError } from "@tanstack/react-start/server"
 import { sql } from "kysely"
 import {
   comparePasswords,
@@ -52,10 +51,7 @@ export const UserRepository = {
   async getUser(id: number): Promise<User> {
     const user = await getUser({ userId: id })
     if (!user) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found")
     }
     return user
   },
@@ -63,10 +59,7 @@ export const UserRepository = {
   async getUserByEmail(email: string): Promise<User> {
     const user = await getUser({ userEmail: email })
     if (!user) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found")
     }
     return user
   },
@@ -124,27 +117,18 @@ export const UserRepository = {
       .executeTakeFirst()
 
     if (!userWithEmailAndPassword) {
-      throw createError({
-        status: 400,
-        message: "Invalid email or password"
-      })
+      throw Error("Invalid email or password")
     }
 
     const isPasswordValid = comparePasswords(password, userWithEmailAndPassword.user_encrypted_password!)
     if (!isPasswordValid) {
-      throw createError({
-        status: 400,
-        message: "Invalid email or password"
-      })
+      throw Error("Invalid email or password")
     }
 
     const user = await getUser({ userId: userWithEmailAndPassword.user_id })
 
     if (!user) {
-      throw createError({
-        status: 400,
-        message: "Invalid email or password"
-      })
+      throw Error("Invalid email or password")
     }
 
     const mockToken = encodeToken(user.userId)
@@ -174,10 +158,7 @@ export const UserRepository = {
     const existingUser = await getUser({ userEmail: email })
 
     if (existingUser) {
-      throw createError({
-        status: 409,
-        message: "Email already exists"
-      })
+      throw Error("Email already exists")
     }
 
     // Hash password
@@ -196,10 +177,7 @@ export const UserRepository = {
       .executeTakeFirst()
 
     if (!result) {
-      throw createError({
-        status: 500,
-        message: "Failed to create user"
-      })
+      throw Error("Failed to create user")
     }
 
     // Insert user assignment
@@ -213,10 +191,7 @@ export const UserRepository = {
       .execute()
 
     if (!userAssignmentResult) {
-      throw createError({
-        status: 500,
-        message: "Failed to create user assignment"
-      })
+      throw Error("Failed to create user assignment")
     }
 
     return await this.getUser(result.user_id)
@@ -225,10 +200,7 @@ export const UserRepository = {
   async updateUser(id: number, updates: UpdateUser): Promise<User> {
     const existingUser = await getUser({ userId: id })
     if (!existingUser) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found: " + id)
     }
 
     const updateValues = {
@@ -243,18 +215,12 @@ export const UserRepository = {
       .executeTakeFirst()
 
     if (!result) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found")
     }
 
     const updatedUser = await getUser({ userId: id })
     if (!updatedUser) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found")
     }
 
     return updatedUser
@@ -263,10 +229,7 @@ export const UserRepository = {
   async deleteUser(id: number): Promise<void> {
     const existingUser = await getUser({ userId: id })
     if (!existingUser) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found")
     }
 
     const result = await db
@@ -279,10 +242,7 @@ export const UserRepository = {
       .execute()
 
     if (!result) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found")
     }
   },
 
@@ -312,10 +272,7 @@ export const UserRepository = {
     const { userId: decodedUserId } = decodeResetPasswordToken(token)
     const user = await getUser({ userId: decodedUserId })
     if (!user) {
-      throw createError({
-        status: 404,
-        message: "User not found"
-      })
+      throw Error("User not found")
     }
     await db
       .updateTable("users")

@@ -1,10 +1,10 @@
 import { UserService } from "@/server/services/UserService"
 import { createMiddleware, json } from "@tanstack/react-start"
-import { getHeader } from "@tanstack/react-start/server"
+import { getRequestHeader } from "@tanstack/react-start/server"
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(async ({ next, data }) => {
   try {
-    const token = getHeader("Authorization")
+    const token = getRequestHeader("Authorization")
     if (!token) {
       throw json({ message: "Unauthorized, no Authorization header provided" }, { status: 401 })
     }

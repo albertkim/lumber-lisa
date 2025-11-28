@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start"
 import { z } from "zod"
 
 export const getSecurityRoles = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     z.object({
       companyId: z.number()
     })

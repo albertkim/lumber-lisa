@@ -6,7 +6,7 @@ import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-
 
 export const getActivityLogs = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .validator(z.object({ companyId: z.number() }))
+  .inputValidator(z.object({ companyId: z.number() }))
   .handler(async ({ data }) => {
     const activityLogs = await ActivityLogService.getActivityLogsByCompanyId(data.companyId)
     return { data: activityLogs }

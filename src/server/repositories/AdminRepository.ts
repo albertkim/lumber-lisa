@@ -1,6 +1,5 @@
 import { AdminCompaniesWithDetailsResponse, AdminRegisterNewCompany, Company } from "@/models"
 import { db } from "@/server/database"
-import { createError } from "@tanstack/react-start/server"
 import { CompanyRepository } from "./CompanyRepository"
 
 export const AdminRepository = {
@@ -97,19 +96,13 @@ export const AdminRepository = {
       .executeTakeFirst()
 
     if (!companyResult) {
-      throw createError({
-        status: 500,
-        message: "Failed to create company"
-      })
+      throw Error("Failed to create company")
     }
 
     const company = await CompanyRepository.getCompanyById(companyResult.company_id)
 
     if (!company) {
-      throw createError({
-        status: 500,
-        message: "Failed to create company"
-      })
+      throw Error("Failed to create company")
     }
     return company
   }
