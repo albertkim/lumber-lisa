@@ -15,7 +15,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext"
 import { Company, User } from "@/models"
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router"
-import { FileText, Home, LogOut, Settings, User as UserIcon, Users } from "lucide-react"
+import { Brain, FileText, Home, LogOut, Settings, User as UserIcon, Users } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export const Route = createFileRoute("/dashboard/company/$companyId")({
@@ -97,6 +97,18 @@ export function AppSidebar({ companyId, user, company }: { companyId: number; us
                   >
                     <FileText />
                     <span>LISA reports</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/dashboard/company/$companyId/ai"
+                    params={{ companyId: companyId.toString() }}
+                    activeProps={{ className: "bg-gray-100" }}
+                  >
+                    <Brain />
+                    <span>AI</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordTokenRouteImport } from './routes/reset-password.$token'
 import { Route as AdminCompaniesIndexRouteImport } from './routes/admin/companies/index'
 import { Route as ApiV1HealthRouteImport } from './routes/api.v1.health'
+import { Route as ApiV1ChatRouteImport } from './routes/api.v1.chat'
 import { Route as AdminCompaniesNewRouteImport } from './routes/admin/companies/new'
 import { Route as DashboardCompanyCompanyIdRouteRouteImport } from './routes/dashboard/company.$companyId/route'
 import { Route as DashboardCompanyCompanyIdProfileRouteImport } from './routes/dashboard/company.$companyId/profile'
@@ -25,6 +26,7 @@ import { Route as DashboardCompanyCompanyIdActivityLogsRouteImport } from './rou
 import { Route as DashboardCompanyCompanyIdUsersRouteRouteImport } from './routes/dashboard/company.$companyId/users/route'
 import { Route as DashboardCompanyCompanyIdSettingsRouteRouteImport } from './routes/dashboard/company.$companyId/settings/route'
 import { Route as DashboardCompanyCompanyIdReportsRouteRouteImport } from './routes/dashboard/company.$companyId/reports/route'
+import { Route as DashboardCompanyCompanyIdAiRouteRouteImport } from './routes/dashboard/company.$companyId/ai/route'
 import { Route as DashboardCompanyCompanyIdUsersSecurityRolesRouteImport } from './routes/dashboard/company.$companyId/users/security-roles'
 import { Route as DashboardCompanyCompanyIdUsersListRouteImport } from './routes/dashboard/company.$companyId/users/list'
 import { Route as DashboardCompanyCompanyIdSettingsLocationsRouteImport } from './routes/dashboard/company.$companyId/settings/locations'
@@ -77,6 +79,11 @@ const ApiV1HealthRoute = ApiV1HealthRouteImport.update({
   path: '/api/v1/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1ChatRoute = ApiV1ChatRouteImport.update({
+  id: '/api/v1/chat',
+  path: '/api/v1/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCompaniesNewRoute = AdminCompaniesNewRouteImport.update({
   id: '/companies/new',
   path: '/companies/new',
@@ -122,6 +129,12 @@ const DashboardCompanyCompanyIdReportsRouteRoute =
   DashboardCompanyCompanyIdReportsRouteRouteImport.update({
     id: '/reports',
     path: '/reports',
+    getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
+  } as any)
+const DashboardCompanyCompanyIdAiRouteRoute =
+  DashboardCompanyCompanyIdAiRouteRouteImport.update({
+    id: '/ai',
+    path: '/ai',
     getParentRoute: () => DashboardCompanyCompanyIdRouteRoute,
   } as any)
 const DashboardCompanyCompanyIdUsersSecurityRolesRoute =
@@ -200,8 +213,10 @@ export interface FileRoutesByFullPath {
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
   '/admin/companies/new': typeof AdminCompaniesNewRoute
+  '/api/v1/chat': typeof ApiV1ChatRoute
   '/api/v1/health': typeof ApiV1HealthRoute
   '/admin/companies': typeof AdminCompaniesIndexRoute
+  '/dashboard/company/$companyId/ai': typeof DashboardCompanyCompanyIdAiRouteRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
@@ -229,8 +244,10 @@ export interface FileRoutesByTo {
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
   '/admin/companies/new': typeof AdminCompaniesNewRoute
+  '/api/v1/chat': typeof ApiV1ChatRoute
   '/api/v1/health': typeof ApiV1HealthRoute
   '/admin/companies': typeof AdminCompaniesIndexRoute
+  '/dashboard/company/$companyId/ai': typeof DashboardCompanyCompanyIdAiRouteRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
@@ -259,8 +276,10 @@ export interface FileRoutesById {
   '/reset-password/$token': typeof ResetPasswordTokenRoute
   '/dashboard/company/$companyId': typeof DashboardCompanyCompanyIdRouteRouteWithChildren
   '/admin/companies/new': typeof AdminCompaniesNewRoute
+  '/api/v1/chat': typeof ApiV1ChatRoute
   '/api/v1/health': typeof ApiV1HealthRoute
   '/admin/companies/': typeof AdminCompaniesIndexRoute
+  '/dashboard/company/$companyId/ai': typeof DashboardCompanyCompanyIdAiRouteRoute
   '/dashboard/company/$companyId/reports': typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   '/dashboard/company/$companyId/settings': typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   '/dashboard/company/$companyId/users': typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
@@ -290,8 +309,10 @@ export interface FileRouteTypes {
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
     | '/admin/companies/new'
+    | '/api/v1/chat'
     | '/api/v1/health'
     | '/admin/companies'
+    | '/dashboard/company/$companyId/ai'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/users'
@@ -319,8 +340,10 @@ export interface FileRouteTypes {
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
     | '/admin/companies/new'
+    | '/api/v1/chat'
     | '/api/v1/health'
     | '/admin/companies'
+    | '/dashboard/company/$companyId/ai'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/users'
@@ -348,8 +371,10 @@ export interface FileRouteTypes {
     | '/reset-password/$token'
     | '/dashboard/company/$companyId'
     | '/admin/companies/new'
+    | '/api/v1/chat'
     | '/api/v1/health'
     | '/admin/companies/'
+    | '/dashboard/company/$companyId/ai'
     | '/dashboard/company/$companyId/reports'
     | '/dashboard/company/$companyId/settings'
     | '/dashboard/company/$companyId/users'
@@ -376,6 +401,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordTokenRoute: typeof ResetPasswordTokenRoute
+  ApiV1ChatRoute: typeof ApiV1ChatRoute
   ApiV1HealthRoute: typeof ApiV1HealthRoute
 }
 
@@ -437,6 +463,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/chat': {
+      id: '/api/v1/chat'
+      path: '/api/v1/chat'
+      fullPath: '/api/v1/chat'
+      preLoaderRoute: typeof ApiV1ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/companies/new': {
       id: '/admin/companies/new'
       path: '/companies/new'
@@ -491,6 +524,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/dashboard/company/$companyId/reports'
       preLoaderRoute: typeof DashboardCompanyCompanyIdReportsRouteRouteImport
+      parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
+    }
+    '/dashboard/company/$companyId/ai': {
+      id: '/dashboard/company/$companyId/ai'
+      path: '/ai'
+      fullPath: '/dashboard/company/$companyId/ai'
+      preLoaderRoute: typeof DashboardCompanyCompanyIdAiRouteRouteImport
       parentRoute: typeof DashboardCompanyCompanyIdRouteRoute
     }
     '/dashboard/company/$companyId/users/security-roles': {
@@ -669,6 +709,7 @@ const DashboardCompanyCompanyIdUsersRouteRouteWithChildren =
   )
 
 interface DashboardCompanyCompanyIdRouteRouteChildren {
+  DashboardCompanyCompanyIdAiRouteRoute: typeof DashboardCompanyCompanyIdAiRouteRoute
   DashboardCompanyCompanyIdReportsRouteRoute: typeof DashboardCompanyCompanyIdReportsRouteRouteWithChildren
   DashboardCompanyCompanyIdSettingsRouteRoute: typeof DashboardCompanyCompanyIdSettingsRouteRouteWithChildren
   DashboardCompanyCompanyIdUsersRouteRoute: typeof DashboardCompanyCompanyIdUsersRouteRouteWithChildren
@@ -679,6 +720,8 @@ interface DashboardCompanyCompanyIdRouteRouteChildren {
 
 const DashboardCompanyCompanyIdRouteRouteChildren: DashboardCompanyCompanyIdRouteRouteChildren =
   {
+    DashboardCompanyCompanyIdAiRouteRoute:
+      DashboardCompanyCompanyIdAiRouteRoute,
     DashboardCompanyCompanyIdReportsRouteRoute:
       DashboardCompanyCompanyIdReportsRouteRouteWithChildren,
     DashboardCompanyCompanyIdSettingsRouteRoute:
@@ -717,6 +760,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   ResetPasswordTokenRoute: ResetPasswordTokenRoute,
+  ApiV1ChatRoute: ApiV1ChatRoute,
   ApiV1HealthRoute: ApiV1HealthRoute,
 }
 export const routeTree = rootRouteImport
