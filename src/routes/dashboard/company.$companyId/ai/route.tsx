@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useEffect, useRef, useState } from "react"
+import { Streamdown } from "streamdown"
 
 export const Route = createFileRoute("/dashboard/company/$companyId/ai")({
   component: RouteComponent,
@@ -66,9 +67,9 @@ function RouteComponent() {
                 switch (part.type) {
                   case "text":
                     return (
-                      <div key={index} className="whitespace-pre-wrap">
+                      <Streamdown key={index}>
                         {part.text}
-                      </div>
+                      </Streamdown>
                     )
 
                   case "tool-table-query-duckdb":

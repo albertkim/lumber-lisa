@@ -44,8 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(userData)
       setCompany(companyData)
     } catch (error) {
-      console.error("Failed to fetch user/company data:", error)
-      logout()
+      if (error instanceof Error && error.message.includes("Unauthorized")) {
+        logout()
+      }
     } finally {
       setIsLoading(false)
     }
@@ -57,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
+    console.log("Logging out")
     localStorage.removeItem("token")
     setUser(null)
     setCompany(null)

@@ -37,6 +37,7 @@ const SYSTEM_PROMPT = `
   - DO NOT repeat the data to the user in your text response, just summarize your findings in a text message, short and concise. The user can already see the results of the SQL tool calls.
     - For example, if the user asks for the last 10 requests, your tool call should return the results of the query, then respond with "Here are the last 10 requests". DO NOT RESPONSE WITH "Here are the last 10 requests. 
   - Feel free to ask the user clarifying questions to help you get the data they need
+  - Feel free to run multiple queries to get the data you need - ex. confirming which product ids you want to query for.
 
   Examples:
 
@@ -78,7 +79,6 @@ export const Route = createFileRoute('/api/v1/chat')({
 
         const result = await streamText({
           model: LLM_MODEL,
-          temperature: 0.3,
           messages: modelMessagesWithSystemPrompt,
           tools: {
             "table-query-duckdb": await getTableQueryDuckDBTool(

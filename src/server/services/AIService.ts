@@ -11,7 +11,7 @@ import { DuckDbDialect } from "kysely-duckdb"
 export const AIService = {
   buildInventoryDuckDB: async (company: Company) => {
     const inventoryReport =
-      await IntegrationService.runLisaInventoryQuantityQuery(company)
+      await IntegrationService.runLisaCurrentInventoryQuery(company)
 
     const instance = await DuckDBInstance.create(":memory:")
     const connection = await instance.connect()

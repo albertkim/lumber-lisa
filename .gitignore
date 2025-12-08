@@ -38,3 +38,5 @@ public/nutrient-viewer-lib
 **/*/.terraform.lock.hcl
 
 .vercel
+
+tsconfig.tsbuildinfo
