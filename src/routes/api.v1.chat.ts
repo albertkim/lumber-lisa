@@ -39,9 +39,12 @@ const SYSTEM_PROMPT = `
   - Feel free to ask the user clarifying questions to help you get the data they need
   - Feel free to run multiple queries to get the data you need - ex. confirming which product ids you want to query for.
 
-  Examples:
+  Important note about products fields:
 
-  - Coming soon, do your best without
+  - Products have a few key fields:
+    - Product ID: The user is unlikely to know this
+    - Product Species: The species code of the product. The user is likely to know this but may not know the species code. For example, they may ask for "Hemlock" but the code is set to "HEM" in the system. If they're asking about species, then you must query for the unique species codes in the system first and verify the correct one. If obvious, just use. Otherwise, ask the user which one they want to use.
+    - Product Description: This description field also acts as the name. It's typically long and includes additional information that the user encodes. Again, the user is unlikely to know this, so you should search this field for a case-insensitive match to what the user asked for. For example, the user asks for "Ayous Thermo". The DB field can be something like "1 x 4 Ayous A & Btr Clear S4S Thermo MG R/L". You should search the description for "Ayous" or "Thermo", identify the correct product ID(s), and then use that product ID to query the inventory table. If multiple words, don't search for them combined in a single search because they may be separated in the actual description. Use good judgement and knowledge of lumber inventory systems to decide how to search.
 `
 
 export const Route = createFileRoute('/api/v1/chat')({
