@@ -92,11 +92,11 @@ function RouteComponent() {
             runId: run.runId,
             runDate: run.runDate,
             runStatus: run.runStatus,
-            machineId: run.machineId,
-            profileId: run.profileId,
-            workOrderId: run.workOrderId,
             supplierId: run.supplierId,
             inventoryGroupId: run.inventoryGroupId,
+            runInputValue: run.runInputValue,
+            runOutputCostValue: run.runOutputCostValue,
+            runOutputMarketValue: run.runOutputMarketValue,
             inputTagCount: run.inputTagCount,
             outputTagCount: run.outputTagCount,
             runInputPieces: run.inputPieces,
@@ -105,9 +105,6 @@ function RouteComponent() {
             runOutputPieces: run.outputPieces,
             runOutputFBM: run.outputFBM,
             runOutputM3: run.outputM3,
-            runDeltaPieces: run.deltaPieces,
-            runDeltaFBM: run.deltaFBM,
-            runDeltaM3: run.deltaM3,
             productId: product.productId,
             productDescription: product.productDescription,
             productInputPieces: product.inputPieces,
@@ -116,20 +113,21 @@ function RouteComponent() {
             productOutputPieces: product.outputPieces,
             productOutputFBM: product.outputFBM,
             productOutputM3: product.outputM3,
-            productDeltaPieces: product.deltaPieces,
-            productDeltaFBM: product.deltaFBM,
-            productDeltaM3: product.deltaM3
+            productRunCost: product.runProductCost,
+            productRunMarket: product.runProductMarket,
+            productRunPurchaseMarket: product.runProductPurchaseMarket,
+            productRunLineCount: product.runProductLineCount
           }))
         : [
             {
               runId: run.runId,
               runDate: run.runDate,
               runStatus: run.runStatus,
-              machineId: run.machineId,
-              profileId: run.profileId,
-              workOrderId: run.workOrderId,
               supplierId: run.supplierId,
               inventoryGroupId: run.inventoryGroupId,
+              runInputValue: run.runInputValue,
+              runOutputCostValue: run.runOutputCostValue,
+              runOutputMarketValue: run.runOutputMarketValue,
               inputTagCount: run.inputTagCount,
               outputTagCount: run.outputTagCount,
               runInputPieces: run.inputPieces,
@@ -138,9 +136,6 @@ function RouteComponent() {
               runOutputPieces: run.outputPieces,
               runOutputFBM: run.outputFBM,
               runOutputM3: run.outputM3,
-              runDeltaPieces: run.deltaPieces,
-              runDeltaFBM: run.deltaFBM,
-              runDeltaM3: run.deltaM3,
               productId: "",
               productDescription: "",
               productInputPieces: 0,
@@ -149,9 +144,10 @@ function RouteComponent() {
               productOutputPieces: 0,
               productOutputFBM: 0,
               productOutputM3: 0,
-              productDeltaPieces: 0,
-              productDeltaFBM: 0,
-              productDeltaM3: 0
+              productRunCost: null,
+              productRunMarket: null,
+              productRunPurchaseMarket: null,
+              productRunLineCount: 0
             }
           ]
     )
@@ -237,10 +233,11 @@ function RouteComponent() {
         <div className="w-full max-w-full overflow-x-auto border rounded-md">
           <Table className="min-w-max text-xs">
             <TableBody>
-              {visibleRuns.map((run) => (
+              {visibleRuns.map((run) => {
+                return (  
                 <React.Fragment key={run.runId}>
                   <TableRow className="bg-gray-200 hover:bg-gray-300">
-                    <TableCell colSpan={11} className="py-2 font-medium">
+                    <TableCell colSpan={4} className="py-2 font-medium">
                       <div>
                         <span className="inline-block w-36">Run ID:</span> {run.runId}
                       </div>
@@ -252,53 +249,56 @@ function RouteComponent() {
                         <span className="inline-block w-36">Status:</span> {run.runStatus || "-"}
                       </div>
                       <div>
-                        <span className="inline-block w-36">Machine / Profile:</span> {run.machineId || "-"} /{" "}
-                        {run.profileId || "-"}
-                      </div>
-                      <div>
-                        <span className="inline-block w-36">Work Order:</span> {run.workOrderId || "-"}
-                      </div>
-                      <div>
                         <span className="inline-block w-36">Supplier / InvGrp:</span> {run.supplierId || "-"} /{" "}
                         {run.inventoryGroupId || "-"}
                       </div>
                       <div>
                         <span className="inline-block w-36">Run totals:</span>
                         In <Number value={run.inputFBM} /> FBM ({run.inputTagCount} tags) | Out{" "}
-                        <Number value={run.outputFBM} /> FBM ({run.outputTagCount} tags) | Delta{" "}
-                        <Number value={run.deltaFBM} /> FBM
+                        <Number value={run.outputFBM} /> FBM ({run.outputTagCount} tags)
+                      </div>
+                      <br />
+                      <div className="mb-2">
+                        <span className="inline-block w-36">Input cost:</span>
+                        {run.runInputValue === null ? "-" : <span className="bg-red-700 text-white p-1"><Currency value={run.runInputValue} /></span>}
+                      </div>
+                      <div className="mb-2">
+                        <span className="inline-block w-36">Output value (cost):</span>
+                        {run.runOutputCostValue === null ? "-" : <span className="bg-green-700 text-white p-1"><Currency value={run.runOutputCostValue} /></span>}
+                      </div>
+                      <div className="mb-2">
+                        <span className="inline-block w-36">Output value (market):</span>
+                        {run.runOutputMarketValue === null ? "-" : <span className="bg-blue-500 text-white p-1"><Currency value={run.runOutputMarketValue} /></span>}
+                      </div>
+
+                      <div className="mb-2">
+                        <span className="inline-block w-36">Output value (invoices):</span>
+                        Coming soon...
                       </div>
                     </TableCell>
                   </TableRow>
                   <TableRow className="hover:bg-muted/50">
                     <TableHead className="py-2">Product</TableHead>
-                    <TableHead className="py-2">Input Pieces</TableHead>
+                    <TableHead className="py-2">Run Cost</TableHead>
                     <TableHead className="py-2">Input FBM</TableHead>
-                    <TableHead className="py-2">Input M3</TableHead>
-                    <TableHead className="py-2">Output Pieces</TableHead>
                     <TableHead className="py-2">Output FBM</TableHead>
-                    <TableHead className="py-2">Output M3</TableHead>
-                    <TableHead className="py-2">Delta Pieces</TableHead>
-                    <TableHead className="py-2">Delta FBM</TableHead>
-                    <TableHead className="py-2">Delta M3</TableHead>
                   </TableRow>
-                  {run.products.map((product) => (
-                    <React.Fragment key={`${run.runId}-${product.productId}`}>
-                      {(() => {
-                        const pricedDeliveries = product.deliveries.filter((delivery) => delivery.invoicePricePer1000FBM !== null)
-                        const uniquePrices = Array.from(
-                          new Set(pricedDeliveries.map((delivery) => delivery.invoicePricePer1000FBM as number))
-                        ).sort((a, b) => a - b)
-                        const weightedDenominator = pricedDeliveries.reduce((sum, delivery) => sum + delivery.fbm, 0)
-                        const weightedAveragePrice =
-                          weightedDenominator > 0
-                            ? pricedDeliveries.reduce(
-                                (sum, delivery) => sum + (delivery.invoicePricePer1000FBM as number) * delivery.fbm,
-                                0
-                              ) / weightedDenominator
-                            : null
+                  {run.products.map((product) => {
+                    const pricedDeliveries = product.deliveries.filter((delivery) => delivery.invoicePricePer1000FBM !== null)
+                    const uniquePrices = Array.from(
+                      new Set(pricedDeliveries.map((delivery) => delivery.invoicePricePer1000FBM as number))
+                    ).sort((a, b) => a - b)
+                    const weightedDenominator = pricedDeliveries.reduce((sum, delivery) => sum + delivery.fbm, 0)
+                    const weightedAveragePrice =
+                      weightedDenominator > 0
+                        ? pricedDeliveries.reduce(
+                            (sum, delivery) => sum + (delivery.invoicePricePer1000FBM as number) * delivery.fbm,
+                            0
+                          ) / weightedDenominator
+                        : null
 
-                        return (
+                    return (
+                    <React.Fragment key={`${run.runId}-${product.productId}`}>
                       <TableRow
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => toggleProductExpansion(`${run.runId}-${product.productId}`)}
@@ -323,38 +323,18 @@ function RouteComponent() {
                           </div>
                         </TableCell>
                         <TableCell className="py-2">
-                          <Number value={product.inputPieces} />
+                          {product.runProductCost === null ? "-" : <Currency value={product.runProductCost} />}
                         </TableCell>
                         <TableCell className="py-2">
                           <Number value={product.inputFBM} />
                         </TableCell>
                         <TableCell className="py-2">
-                          <Number value={product.inputM3} />
-                        </TableCell>
-                        <TableCell className="py-2">
-                          <Number value={product.outputPieces} />
-                        </TableCell>
-                        <TableCell className="py-2">
                           <Number value={product.outputFBM} />
                         </TableCell>
-                        <TableCell className="py-2">
-                          <Number value={product.outputM3} />
-                        </TableCell>
-                        <TableCell className="py-2">
-                          <Number value={product.deltaPieces} />
-                        </TableCell>
-                        <TableCell className="py-2">
-                          <Number value={product.deltaFBM} />
-                        </TableCell>
-                        <TableCell className="py-2">
-                          <Number value={product.deltaM3} />
-                        </TableCell>
                       </TableRow>
-                        )
-                      })()}
                       {expandedProductKeys.has(`${run.runId}-${product.productId}`) && (
                         <TableRow>
-                          <TableCell colSpan={11} className="bg-muted/30 py-3 pl-8">
+                          <TableCell colSpan={4} className="bg-muted/30 py-3 pl-8">
                             <Tabs defaultValue="deliveries" className="w-full">
                               <TabsList>
                                 <TabsTrigger value="deliveries">Deliveries</TabsTrigger>
@@ -477,19 +457,19 @@ function RouteComponent() {
                         </TableRow>
                       )}
                     </React.Fragment>
-                  ))}
+                  )})}
                   {run.products.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-center py-4">
+                      <TableCell colSpan={4} className="text-center py-4">
                         No product flow data available for this run
                       </TableCell>
                     </TableRow>
                   )}
                 </React.Fragment>
-              ))}
+              )})}
               {visibleRuns.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-4">
+                  <TableCell colSpan={4} className="text-center py-4">
                     No data available
                   </TableCell>
                 </TableRow>

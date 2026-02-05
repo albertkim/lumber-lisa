@@ -313,11 +313,11 @@ export const IntegrationService = {
           rh.ID AS [Run ID],
           rh.[Date] AS [Run Date],
           rh.[Status] AS [Run Status],
-          rh.Machineid AS [Machine ID],
-          rh.Profile AS [Profile ID],
-          rh.WorkOrderId AS [Work Order ID],
           rh.Supplier AS [Supplier ID],
-          rh.Invgrp AS [Inventory Group ID]
+          rh.Invgrp AS [Inventory Group ID],
+          rh.Totinval AS [Run Input Value],
+          rh.Totcost AS [Run Output Cost Value],
+          rh.Totmarket AS [Run Output Market Value]
       FROM dbo.Runhdr rh
       ${whereSql}
       ORDER BY rh.[Date] DESC, rh.Created_Date DESC, rh.ID DESC
@@ -377,6 +377,38 @@ export const IntegrationService = {
     `
 
     const outputTagDeliveryRows = await executeMSSQLQuery(connectionConfig, outputTagDeliveryQuery)
+
+    const runProductCostQuery = `
+      SELECT
+        rp.Runid AS [Run ID],
+        rp.Prodid AS [Product ID],
+        ROUND(AVG(CAST(rp.Cost AS float)), 2) AS [Run Product Cost],
+        ROUND(AVG(CAST(rp.Market AS float)), 2) AS [Run Product Market],
+        ROUND(AVG(CAST(rp.Purmarket AS float)), 2) AS [Run Product Purchase Market],
+        COUNT(*) AS [Run Product Line Count]
+      FROM dbo.Runprod rp
+      WHERE rp.Runid IN (${escapedRunIds})
+        AND rp.Prodid IS NOT NULL
+      GROUP BY rp.Runid, rp.Prodid;
+    `
+
+    const runProductCostRows = await executeMSSQLQuery(connectionConfig, runProductCostQuery)
+    const runProductCostMap = new Map<
+      string,
+      { cost: number | null; market: number | null; purchaseMarket: number | null; lineCount: number }
+    >()
+    for (const row of runProductCostRows) {
+      const runId = toNullableString(row["Run ID"])
+      const productId = toNullableString(row["Product ID"])
+      if (!runId || !productId) continue
+      runProductCostMap.set(`${runId}::${productId}`, {
+        cost: row["Run Product Cost"] === null ? null : toNumber(row["Run Product Cost"]),
+        market: row["Run Product Market"] === null ? null : toNumber(row["Run Product Market"]),
+        purchaseMarket:
+          row["Run Product Purchase Market"] === null ? null : toNumber(row["Run Product Purchase Market"]),
+        lineCount: toNumber(row["Run Product Line Count"])
+      })
+    }
 
     const deliveryIds = Array.from(
       new Set(outputTagDeliveryRows.map((row) => toNullableString(row["Delivery Slip ID"])).filter((value): value is string => !!value))
@@ -612,9 +644,15 @@ export const IntegrationService = {
             }))
             .sort((a, b) => b.fbm - a.fbm)
 
+          const runProductCost = runProductCostMap.get(`${runId}::${product.productId}`)
+
           return {
             ...product,
             deliveries,
+            runProductCost: runProductCost?.cost ?? null,
+            runProductMarket: runProductCost?.market ?? null,
+            runProductPurchaseMarket: runProductCost?.purchaseMarket ?? null,
+            runProductLineCount: runProductCost?.lineCount ?? 0,
             deltaPieces: roundTo2(product.outputPieces - product.inputPieces),
             deltaFBM: roundTo2(product.outputFBM - product.inputFBM),
             deltaM3: roundTo2(product.outputM3 - product.inputM3)
@@ -626,11 +664,20 @@ export const IntegrationService = {
         runId,
         runDate: toNullableIsoString(runRow["Run Date"]),
         runStatus: toNullableString(runRow["Run Status"]),
-        machineId: toNullableString(runRow["Machine ID"]),
-        profileId: toNullableString(runRow["Profile ID"]),
-        workOrderId: toNullableString(runRow["Work Order ID"]),
         supplierId: toNullableString(runRow["Supplier ID"]),
         inventoryGroupId: toNullableString(runRow["Inventory Group ID"]),
+        runInputValue:
+          runRow["Run Input Value"] === null || runRow["Run Input Value"] === undefined
+            ? null
+            : roundTo2(toNumber(runRow["Run Input Value"])),
+        runOutputCostValue:
+          runRow["Run Output Cost Value"] === null || runRow["Run Output Cost Value"] === undefined
+            ? null
+            : roundTo2(toNumber(runRow["Run Output Cost Value"])),
+        runOutputMarketValue:
+          runRow["Run Output Market Value"] === null || runRow["Run Output Market Value"] === undefined
+            ? null
+            : roundTo2(toNumber(runRow["Run Output Market Value"])),
         inputTagCount: inputTags.size,
         outputTagCount: outputTags.size,
         inputPieces,
