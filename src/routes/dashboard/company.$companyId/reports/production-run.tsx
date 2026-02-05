@@ -1,8 +1,10 @@
 import { Number } from "@/components/formatting/Number"
+import { Currency } from "@/components/formatting/Currency"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/contexts/AuthContext"
 import { LisaProductionRunReport } from "@/models"
 import { getProductionRunReport } from "@/server/server-functions/report-functions"
@@ -36,6 +38,7 @@ function RouteComponent() {
   const { company } = useAuth()
   const [report, setReport] = useState<LisaProductionRunReport | null>(null)
   const [loading, setLoading] = useState(true)
+  const [expandedProductKeys, setExpandedProductKeys] = useState<Set<string>>(new Set())
   const [runSearchQuery, setRunSearchQuery] = useState("")
   const [productSearchQuery, setProductSearchQuery] = useState("")
   const debouncedRunSearchQuery = useDebounce(runSearchQuery, 300)
@@ -172,6 +175,18 @@ function RouteComponent() {
       }))
       .filter((run) => !debouncedProductSearchQuery || run.products.length > 0) ?? []
 
+  const toggleProductExpansion = (key: string) => {
+    setExpandedProductKeys((previous) => {
+      const next = new Set(previous)
+      if (next.has(key)) {
+        next.delete(key)
+      } else {
+        next.add(key)
+      }
+      return next
+    })
+  }
+
   return (
     <div className="space-y-4">
       <h2>Production run report</h2>
@@ -260,39 +275,200 @@ function RouteComponent() {
                     <TableHead className="py-2">Delta M3</TableHead>
                   </TableRow>
                   {run.products.map((product) => (
-                    <TableRow key={`${run.runId}-${product.productId}`} className="hover:bg-muted/50">
-                      <TableCell className="py-2 min-w-[250px]">
-                        <div className="text-gray-500">{product.productId}</div>
-                        <div>{product.productDescription}</div>
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.inputPieces} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.inputFBM} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.inputM3} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.outputPieces} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.outputFBM} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.outputM3} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.deltaPieces} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.deltaFBM} />
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Number value={product.deltaM3} />
-                      </TableCell>
-                    </TableRow>
+                    <React.Fragment key={`${run.runId}-${product.productId}`}>
+                      {(() => {
+                        const pricedDeliveries = product.deliveries.filter((delivery) => delivery.invoicePricePer1000FBM !== null)
+                        const uniquePrices = Array.from(
+                          new Set(pricedDeliveries.map((delivery) => delivery.invoicePricePer1000FBM as number))
+                        ).sort((a, b) => a - b)
+                        const weightedDenominator = pricedDeliveries.reduce((sum, delivery) => sum + delivery.fbm, 0)
+                        const weightedAveragePrice =
+                          weightedDenominator > 0
+                            ? pricedDeliveries.reduce(
+                                (sum, delivery) => sum + (delivery.invoicePricePer1000FBM as number) * delivery.fbm,
+                                0
+                              ) / weightedDenominator
+                            : null
+
+                        return (
+                      <TableRow
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => toggleProductExpansion(`${run.runId}-${product.productId}`)}
+                      >
+                        <TableCell className="py-2 min-w-[250px]">
+                          <div className="text-gray-500">{product.productId}</div>
+                          <div>{product.productDescription}</div>
+                          <div className="text-gray-500 text-[11px] mt-1">
+                            {product.deliveries.length} invoiced {product.deliveries.length === 1 ? "delivery" : "deliveries"}
+                            {uniquePrices.length > 0 && (
+                              <>
+                                {" "}
+                                | Prices: {uniquePrices.map((price, index) => <React.Fragment key={`${price}-${index}`}>{index > 0 ? ", " : ""}<Currency value={price} /></React.Fragment>)}
+                                {weightedAveragePrice !== null && (
+                                  <>
+                                    {" "}
+                                    | WAvg: <Currency value={weightedAveragePrice} />
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.inputPieces} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.inputFBM} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.inputM3} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.outputPieces} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.outputFBM} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.outputM3} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.deltaPieces} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.deltaFBM} />
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Number value={product.deltaM3} />
+                        </TableCell>
+                      </TableRow>
+                        )
+                      })()}
+                      {expandedProductKeys.has(`${run.runId}-${product.productId}`) && (
+                        <TableRow>
+                          <TableCell colSpan={12} className="bg-muted/30 py-3 pl-8">
+                            <Tabs defaultValue="deliveries" className="w-full">
+                              <TabsList>
+                                <TabsTrigger value="deliveries">Deliveries</TabsTrigger>
+                                <TabsTrigger value="tags">Tags</TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="deliveries" className="mt-3">
+                                <div className="text-xs font-medium mb-2">
+                                  Invoiced deliveries for {product.productId}
+                                </div>
+                                <div className="overflow-x-auto">
+                                  <Table className="min-w-max text-xs">
+                                    <TableBody>
+                                      <TableRow>
+                                        <TableHead>Delivery Slip</TableHead>
+                                        <TableHead>Delivery Date</TableHead>
+                                        <TableHead>Invoice IDs</TableHead>
+                                        <TableHead>Invoice $/1000 FBM</TableHead>
+                                        <TableHead>Tags</TableHead>
+                                        <TableHead>Pieces</TableHead>
+                                        <TableHead>FBM</TableHead>
+                                        <TableHead>M3</TableHead>
+                                      </TableRow>
+                                      {product.deliveries.map((delivery) => (
+                                        <TableRow key={`${run.runId}-${product.productId}-${delivery.deliverySlipId}`}>
+                                          <TableCell>{delivery.deliverySlipId}</TableCell>
+                                          <TableCell>
+                                            {delivery.deliveryDate ? dayjs(delivery.deliveryDate).format("YYYY-MM-DD") : "-"}
+                                          </TableCell>
+                                          <TableCell>{delivery.invoiceIds.join(", ") || "-"}</TableCell>
+                                          <TableCell>
+                                            {delivery.invoicePricePer1000FBM === null ? "-" : (
+                                              <Currency value={delivery.invoicePricePer1000FBM} />
+                                            )}
+                                          </TableCell>
+                                          <TableCell>
+                                            <Number value={delivery.tagCount} />
+                                          </TableCell>
+                                          <TableCell>
+                                            <Number value={delivery.pieces} />
+                                          </TableCell>
+                                          <TableCell>
+                                            <Number value={delivery.fbm} />
+                                          </TableCell>
+                                          <TableCell>
+                                            <Number value={delivery.m3} />
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                      {product.deliveries.length === 0 && (
+                                        <TableRow>
+                                          <TableCell colSpan={8} className="text-center py-2">
+                                            No invoiced deliveries found for this product
+                                          </TableCell>
+                                        </TableRow>
+                                      )}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </TabsContent>
+                              <TabsContent value="tags" className="mt-3">
+                                <div className="text-xs font-medium mb-2">
+                                  Tags for {product.productId} (in: {product.inputTagCount}, out: {product.outputTagCount})
+                                </div>
+                                <div className="overflow-x-auto">
+                                  <Table className="min-w-max text-xs">
+                                    <TableBody>
+                                      <TableRow>
+                                        <TableHead>Tag</TableHead>
+                                        <TableHead>Flow</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Source</TableHead>
+                                        <TableHead>Destination</TableHead>
+                                        <TableHead>Location</TableHead>
+                                        <TableHead>InvGrp</TableHead>
+                                        <TableHead>Pieces</TableHead>
+                                        <TableHead>FBM</TableHead>
+                                        <TableHead>M3</TableHead>
+                                        <TableHead>Source Date</TableHead>
+                                        <TableHead>Dest Date</TableHead>
+                                      </TableRow>
+                                      {product.tags.map((tag) => (
+                                        <TableRow key={`${run.runId}-${product.productId}-${tag.flow}-${tag.tagId}`}>
+                                          <TableCell>{tag.tagId}</TableCell>
+                                          <TableCell>{tag.flow}</TableCell>
+                                          <TableCell>{tag.status || "-"}</TableCell>
+                                          <TableCell>{tag.sourceRunId || "-"}</TableCell>
+                                          <TableCell>{tag.destinationRunId || "-"}</TableCell>
+                                          <TableCell>{tag.locationId || "-"}</TableCell>
+                                          <TableCell>{tag.inventoryGroupId || "-"}</TableCell>
+                                          <TableCell>
+                                            <Number value={tag.pieces} />
+                                          </TableCell>
+                                          <TableCell>
+                                            <Number value={tag.fbm} />
+                                          </TableCell>
+                                          <TableCell>
+                                            <Number value={tag.m3} />
+                                          </TableCell>
+                                          <TableCell>
+                                            {tag.sourceDate ? dayjs(tag.sourceDate).format("YYYY-MM-DD") : "-"}
+                                          </TableCell>
+                                          <TableCell>
+                                            {tag.destinationDate ? dayjs(tag.destinationDate).format("YYYY-MM-DD") : "-"}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                      {product.tags.length === 0 && (
+                                        <TableRow>
+                                          <TableCell colSpan={12} className="text-center py-2">
+                                            No tags for this product
+                                          </TableCell>
+                                        </TableRow>
+                                      )}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </TabsContent>
+                            </Tabs>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
                   ))}
                   {run.products.length === 0 && (
                     <TableRow>

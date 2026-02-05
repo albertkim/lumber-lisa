@@ -50,6 +50,14 @@ function RouteComponent() {
           >
             Production run
           </Link>
+          <Link
+            className="hover:bg-gray-100 rounded p-2"
+            activeProps={{ className: "bg-gray-100 font-medium" }}
+            to="/dashboard/company/$companyId/reports/delivery-slip"
+            params={{ companyId: company!.companyId.toString() }}
+          >
+            Delivery slips
+          </Link>
         </nav>
       </div>
       <div className="content min-w-0 flex-1">

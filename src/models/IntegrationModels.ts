@@ -72,6 +72,8 @@ export const LisaCurrentInventoryReportSchema = z.object({
 export type LisaCurrentInventoryReport = z.infer<typeof LisaCurrentInventoryReportSchema>
 
 export const LisaProductionRunProductFlowSchema = z.object({
+  inputTagCount: z.number(),
+  outputTagCount: z.number(),
   productId: z.string(),
   productDescription: z.string().nullable(),
   inputPieces: z.number(),
@@ -82,7 +84,35 @@ export const LisaProductionRunProductFlowSchema = z.object({
   outputM3: z.number(),
   deltaPieces: z.number(),
   deltaFBM: z.number(),
-  deltaM3: z.number()
+  deltaM3: z.number(),
+  deliveries: z.array(
+    z.object({
+      deliverySlipId: z.string(),
+      deliveryDate: z.string().nullable(),
+      invoiceIds: z.array(z.string()),
+      invoicePricePer1000FBM: z.number().nullable(),
+      tagCount: z.number(),
+      pieces: z.number(),
+      fbm: z.number(),
+      m3: z.number()
+    })
+  ),
+  tags: z.array(
+    z.object({
+      tagId: z.string(),
+      flow: z.enum(["input", "output"]),
+      status: z.string().nullable(),
+      sourceRunId: z.string().nullable(),
+      destinationRunId: z.string().nullable(),
+      locationId: z.string().nullable(),
+      inventoryGroupId: z.string().nullable(),
+      pieces: z.number(),
+      fbm: z.number(),
+      m3: z.number(),
+      sourceDate: z.string().nullable(),
+      destinationDate: z.string().nullable()
+    })
+  )
 })
 
 export type LisaProductionRunProductFlow = z.infer<typeof LisaProductionRunProductFlowSchema>
@@ -117,3 +147,47 @@ export const LisaProductionRunReportSchema = z.object({
 })
 
 export type LisaProductionRunReport = z.infer<typeof LisaProductionRunReportSchema>
+
+export const LisaDeliverySlipTagSchema = z.object({
+  tagId: z.string(),
+  productId: z.string().nullable(),
+  productDescription: z.string().nullable(),
+  invoicePricePer1000FBM: z.number().nullable(),
+  status: z.string().nullable(),
+  source: z.string().nullable(),
+  destination: z.string().nullable(),
+  sourceDate: z.string().nullable(),
+  destinationDate: z.string().nullable(),
+  pieces: z.number(),
+  fbm: z.number(),
+  m3: z.number()
+})
+
+export type LisaDeliverySlipTag = z.infer<typeof LisaDeliverySlipTagSchema>
+
+export const LisaDeliverySlipSchema = z.object({
+  deliverySlipId: z.string(),
+  deliveryDate: z.string().nullable(),
+  customerId: z.string().nullable(),
+  customerOrderId: z.string().nullable(),
+  inventoryGroupId: z.string().nullable(),
+  shipMode: z.string().nullable(),
+  carrier: z.string().nullable(),
+  truckNumber: z.string().nullable(),
+  posted: z.string().nullable(),
+  linkedOrderIds: z.array(z.string()),
+  linkedInvoiceIds: z.array(z.string()),
+  tagCount: z.number(),
+  totalPieces: z.number(),
+  totalFBM: z.number(),
+  totalM3: z.number(),
+  tags: z.array(LisaDeliverySlipTagSchema)
+})
+
+export type LisaDeliverySlip = z.infer<typeof LisaDeliverySlipSchema>
+
+export const LisaDeliverySlipReportSchema = z.object({
+  data: z.array(LisaDeliverySlipSchema)
+})
+
+export type LisaDeliverySlipReport = z.infer<typeof LisaDeliverySlipReportSchema>

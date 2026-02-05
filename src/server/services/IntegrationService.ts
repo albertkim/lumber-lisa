@@ -1,5 +1,6 @@
 import {
   Company,
+  LisaDeliverySlipReport,
   Integrations,
   LisaCurrentInventoryReport,
   LisaInventoryQuantityReport,
@@ -110,8 +111,16 @@ type ProductionRunOptions = {
   dateTo?: string
 }
 
+type DeliverySlipOptions = {
+  limit?: number
+  dateFrom?: string
+  dateTo?: string
+}
+
 const DEFAULT_PRODUCTION_RUN_LIMIT = 50
 const MAX_PRODUCTION_RUN_LIMIT = 200
+const DEFAULT_DELIVERY_SLIP_LIMIT = 100
+const MAX_DELIVERY_SLIP_LIMIT = 300
 
 function toMssqlDateLiteral(value: string): string {
   return value.replace(/'/g, "''")
@@ -138,6 +147,10 @@ function toNullableIsoString(value: unknown): string | null {
   const date = new Date(String(value))
   if (Number.isNaN(date.getTime())) return null
   return date.toISOString()
+}
+
+function roundTo2(value: number): number {
+  return Math.round(value * 100) / 100
 }
 
 export const IntegrationService = {
@@ -238,16 +251,74 @@ export const IntegrationService = {
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""
 
     const runQuery = `
+      WITH run_product_flow AS (
+        SELECT
+          t.Source AS [Run ID],
+          t.Prodid AS [Product ID],
+          SUM(ISNULL(t.Pcs, 0)) AS [Out Pieces],
+          SUM(ISNULL(t.Fbm, 0)) AS [Out FBM],
+          SUM(ISNULL(t.M3, 0)) AS [Out M3],
+          CAST(0 AS float) AS [In Pieces],
+          CAST(0 AS float) AS [In FBM],
+          CAST(0 AS float) AS [In M3]
+        FROM dbo.Tag t
+        WHERE t.Source IS NOT NULL
+          AND t.Prodid IS NOT NULL
+        GROUP BY t.Source, t.Prodid
+
+        UNION ALL
+
+        SELECT
+          t.Dest AS [Run ID],
+          t.Prodid AS [Product ID],
+          CAST(0 AS float) AS [Out Pieces],
+          CAST(0 AS float) AS [Out FBM],
+          CAST(0 AS float) AS [Out M3],
+          SUM(ISNULL(t.Pcs, 0)) AS [In Pieces],
+          SUM(ISNULL(t.Fbm, 0)) AS [In FBM],
+          SUM(ISNULL(t.M3, 0)) AS [In M3]
+        FROM dbo.Tag t
+        WHERE t.Dest IS NOT NULL
+          AND t.Prodid IS NOT NULL
+        GROUP BY t.Dest, t.Prodid
+      ),
+      run_product_totals AS (
+        SELECT
+          [Run ID],
+          [Product ID],
+          SUM([Out Pieces]) AS [Out Pieces],
+          SUM([Out FBM]) AS [Out FBM],
+          SUM([Out M3]) AS [Out M3],
+          SUM([In Pieces]) AS [In Pieces],
+          SUM([In FBM]) AS [In FBM],
+          SUM([In M3]) AS [In M3]
+        FROM run_product_flow
+        GROUP BY [Run ID], [Product ID]
+      ),
+      qualifying_runs AS (
+        SELECT [Run ID]
+        FROM run_product_totals
+        GROUP BY [Run ID]
+        HAVING MAX(
+          CASE
+            WHEN ABS([Out Pieces] - [In Pieces]) > 0.001
+              OR ABS([Out FBM] - [In FBM]) > 0.01
+              OR ABS([Out M3] - [In M3]) > 0.001
+            THEN 1 ELSE 0
+          END
+        ) = 1
+      )
       SELECT TOP ${limit}
-        rh.ID AS [Run ID],
-        rh.[Date] AS [Run Date],
-        rh.[Status] AS [Run Status],
-        rh.Machineid AS [Machine ID],
-        rh.Profile AS [Profile ID],
-        rh.WorkOrderId AS [Work Order ID],
-        rh.Supplier AS [Supplier ID],
-        rh.Invgrp AS [Inventory Group ID]
+          rh.ID AS [Run ID],
+          rh.[Date] AS [Run Date],
+          rh.[Status] AS [Run Status],
+          rh.Machineid AS [Machine ID],
+          rh.Profile AS [Profile ID],
+          rh.WorkOrderId AS [Work Order ID],
+          rh.Supplier AS [Supplier ID],
+          rh.Invgrp AS [Inventory Group ID]
       FROM dbo.Runhdr rh
+      INNER JOIN qualifying_runs qr ON qr.[Run ID] = rh.ID
       ${whereSql}
       ORDER BY rh.[Date] DESC, rh.Created_Date DESC, rh.ID DESC;
     `
@@ -264,20 +335,80 @@ export const IntegrationService = {
 
     const tagFlowQuery = `
       SELECT
+        t.Tagid AS [Tag ID],
+        t.[Status] AS [Tag Status],
         t.Source AS [Source Run ID],
         t.Dest AS [Destination Run ID],
+        t.Sourcedate AS [Source Date],
+        t.Destdate AS [Destination Date],
+        t.Locid AS [Location ID],
+        t.Grpid AS [Inventory Group ID],
         t.Prodid AS [Product ID],
         p.Descrip AS [Product Description],
         t.Pcs AS [Pieces],
         t.Fbm AS [FBM],
-        t.M3 AS [M3],
-        t.Tagid AS [Tag ID]
+        t.M3 AS [M3]
       FROM dbo.Tag t
       LEFT JOIN dbo.Product p ON p.Prodid = t.Prodid
       WHERE t.Source IN (${escapedRunIds}) OR t.Dest IN (${escapedRunIds});
     `
 
     const flowRows = await executeMSSQLQuery(connectionConfig, tagFlowQuery)
+
+    const outputTagDeliveryQuery = `
+      SELECT
+        t.Source AS [Run ID],
+        t.Prodid AS [Product ID],
+        t.Tagid AS [Tag ID],
+        t.Dest AS [Delivery Slip ID],
+        t.Pcs AS [Pieces],
+        t.Fbm AS [FBM],
+        t.M3 AS [M3],
+        d.[Date] AS [Delivery Date],
+        idl.Invoice AS [Invoice ID]
+      FROM dbo.Tag t
+      INNER JOIN dbo.Delslip d ON d.Dsid = t.Dest
+      INNER JOIN dbo.Invoice_Delslip idl ON idl.Delslip = d.Dsid
+      WHERE t.Source IN (${escapedRunIds})
+        AND t.Prodid IS NOT NULL;
+    `
+
+    const outputTagDeliveryRows = await executeMSSQLQuery(connectionConfig, outputTagDeliveryQuery)
+
+    const deliveryIds = Array.from(
+      new Set(outputTagDeliveryRows.map((row) => toNullableString(row["Delivery Slip ID"])).filter((value): value is string => !!value))
+    )
+
+    const invoicePriceByDeliveryAndProduct = new Map<string, number>()
+    if (deliveryIds.length > 0) {
+      const escapedDeliveryIds = deliveryIds.map((deliveryId) => `'${deliveryId.replace(/'/g, "''")}'`).join(", ")
+      const invoicePriceByDeliveryAndProductQuery = `
+        SELECT
+          idl.Delslip AS [Delivery Slip ID],
+          idet.Prodid AS [Product ID],
+          ROUND(
+            CASE
+              WHEN SUM(ISNULL(idet.Qty, 0)) = 0 THEN AVG(CAST(idet.Price AS float))
+              ELSE SUM(CAST(idet.Price AS float) * ISNULL(idet.Qty, 0)) / NULLIF(SUM(ISNULL(idet.Qty, 0)), 0)
+            END
+          , 2) AS [Average Invoice Price Per 1000 FBM]
+        FROM dbo.Invoice_Delslip idl
+        INNER JOIN dbo.Invoice_Det idet ON idet.ID = idl.Invoice
+        WHERE idl.Delslip IN (${escapedDeliveryIds})
+          AND idet.Prodid IS NOT NULL
+        GROUP BY idl.Delslip, idet.Prodid;
+      `
+      const invoicePriceRows = await executeMSSQLQuery(connectionConfig, invoicePriceByDeliveryAndProductQuery)
+      for (const row of invoicePriceRows) {
+        const deliverySlipId = toNullableString(row["Delivery Slip ID"])
+        const productId = toNullableString(row["Product ID"])
+        if (!deliverySlipId || !productId) continue
+        invoicePriceByDeliveryAndProduct.set(
+          `${deliverySlipId}::${productId}`,
+          toNumber(row["Average Invoice Price Per 1000 FBM"])
+        )
+      }
+    }
 
     const runs = runRows.map((runRow) => {
       const runId = String(runRow["Run ID"])
@@ -296,6 +427,8 @@ export const IntegrationService = {
       const productsMap = new Map<
         string,
         {
+          inputTagCount: number
+          outputTagCount: number
           productId: string
           productDescription: string | null
           inputPieces: number
@@ -304,6 +437,30 @@ export const IntegrationService = {
           outputPieces: number
           outputFBM: number
           outputM3: number
+          deliveries: Array<{
+            deliverySlipId: string
+            deliveryDate: string | null
+            invoiceIds: string[]
+            invoicePricePer1000FBM: number | null
+            tagCount: number
+            pieces: number
+            fbm: number
+            m3: number
+          }>
+          tags: Array<{
+            tagId: string
+            flow: "input" | "output"
+            status: string | null
+            sourceRunId: string | null
+            destinationRunId: string | null
+            locationId: string | null
+            inventoryGroupId: string | null
+            pieces: number
+            fbm: number
+            m3: number
+            sourceDate: string | null
+            destinationDate: string | null
+          }>
         }
       >()
 
@@ -318,6 +475,8 @@ export const IntegrationService = {
 
         if (!productsMap.has(productId)) {
           productsMap.set(productId, {
+            inputTagCount: 0,
+            outputTagCount: 0,
             productId,
             productDescription: toNullableString(flowRow["Product Description"]),
             inputPieces: 0,
@@ -325,7 +484,9 @@ export const IntegrationService = {
             inputM3: 0,
             outputPieces: 0,
             outputFBM: 0,
-            outputM3: 0
+            outputM3: 0,
+            deliveries: [],
+            tags: []
           })
         }
 
@@ -335,9 +496,26 @@ export const IntegrationService = {
           inputPieces += pieces
           inputFBM += fbm
           inputM3 += m3
+          product.inputTagCount += 1
           product.inputPieces += pieces
           product.inputFBM += fbm
           product.inputM3 += m3
+          if (tagId) {
+            product.tags.push({
+              tagId,
+              flow: "input",
+              status: toNullableString(flowRow["Tag Status"]),
+              sourceRunId: toNullableString(flowRow["Source Run ID"]),
+              destinationRunId: toNullableString(flowRow["Destination Run ID"]),
+              locationId: toNullableString(flowRow["Location ID"]),
+              inventoryGroupId: toNullableString(flowRow["Inventory Group ID"]),
+              pieces,
+              fbm,
+              m3,
+              sourceDate: toNullableIsoString(flowRow["Source Date"]),
+              destinationDate: toNullableIsoString(flowRow["Destination Date"])
+            })
+          }
           if (tagId) inputTags.add(tagId)
         }
 
@@ -345,20 +523,100 @@ export const IntegrationService = {
           outputPieces += pieces
           outputFBM += fbm
           outputM3 += m3
+          product.outputTagCount += 1
           product.outputPieces += pieces
           product.outputFBM += fbm
           product.outputM3 += m3
+          if (tagId) {
+            product.tags.push({
+              tagId,
+              flow: "output",
+              status: toNullableString(flowRow["Tag Status"]),
+              sourceRunId: toNullableString(flowRow["Source Run ID"]),
+              destinationRunId: toNullableString(flowRow["Destination Run ID"]),
+              locationId: toNullableString(flowRow["Location ID"]),
+              inventoryGroupId: toNullableString(flowRow["Inventory Group ID"]),
+              pieces,
+              fbm,
+              m3,
+              sourceDate: toNullableIsoString(flowRow["Source Date"]),
+              destinationDate: toNullableIsoString(flowRow["Destination Date"])
+            })
+          }
           if (tagId) outputTags.add(tagId)
         }
       }
 
       const products = Array.from(productsMap.values())
-        .map((product) => ({
-          ...product,
-          deltaPieces: product.outputPieces - product.inputPieces,
-          deltaFBM: product.outputFBM - product.inputFBM,
-          deltaM3: product.outputM3 - product.inputM3
-        }))
+        .map((product) => {
+          const deliveryMap = new Map<
+            string,
+            {
+              deliverySlipId: string
+              deliveryDate: string | null
+              invoiceIds: Set<string>
+              invoicePricePer1000FBM: number | null
+              tagIds: Set<string>
+              pieces: number
+              fbm: number
+              m3: number
+            }
+          >()
+
+          const productDeliveryRows = outputTagDeliveryRows.filter(
+            (row) => row["Run ID"] === runId && row["Product ID"] === product.productId
+          )
+
+          for (const row of productDeliveryRows) {
+            const deliverySlipId = toNullableString(row["Delivery Slip ID"])
+            const invoiceId = toNullableString(row["Invoice ID"])
+            const tagId = toNullableString(row["Tag ID"])
+            if (!deliverySlipId || !tagId) continue
+
+            if (!deliveryMap.has(deliverySlipId)) {
+              deliveryMap.set(deliverySlipId, {
+                deliverySlipId,
+                deliveryDate: toNullableIsoString(row["Delivery Date"]),
+                invoiceIds: new Set<string>(),
+                invoicePricePer1000FBM:
+                  invoicePriceByDeliveryAndProduct.get(`${deliverySlipId}::${product.productId}`) ?? null,
+                tagIds: new Set<string>(),
+                pieces: 0,
+                fbm: 0,
+                m3: 0
+              })
+            }
+
+            const delivery = deliveryMap.get(deliverySlipId)!
+            if (invoiceId) delivery.invoiceIds.add(invoiceId)
+            if (delivery.tagIds.has(tagId)) continue
+            delivery.tagIds.add(tagId)
+            delivery.pieces += toNumber(row["Pieces"])
+            delivery.fbm += toNumber(row["FBM"])
+            delivery.m3 += toNumber(row["M3"])
+          }
+
+          const deliveries = Array.from(deliveryMap.values())
+            .map((delivery) => ({
+              deliverySlipId: delivery.deliverySlipId,
+              deliveryDate: delivery.deliveryDate,
+              invoiceIds: Array.from(delivery.invoiceIds),
+              invoicePricePer1000FBM: delivery.invoicePricePer1000FBM,
+              tagCount: delivery.tagIds.size,
+              pieces: roundTo2(delivery.pieces),
+              fbm: roundTo2(delivery.fbm),
+              m3: roundTo2(delivery.m3)
+            }))
+            .sort((a, b) => b.fbm - a.fbm)
+
+          return {
+            ...product,
+            deliveries,
+            deltaPieces: roundTo2(product.outputPieces - product.inputPieces),
+            deltaFBM: roundTo2(product.outputFBM - product.inputFBM),
+            deltaM3: roundTo2(product.outputM3 - product.inputM3)
+          }
+        })
         .sort((a, b) => Math.abs(b.deltaFBM) - Math.abs(a.deltaFBM))
 
       return {
@@ -386,5 +644,190 @@ export const IntegrationService = {
     })
 
     return { data: runs }
+  },
+
+  async runLisaDeliverySlipQuery(company: Company, options?: DeliverySlipOptions): Promise<LisaDeliverySlipReport> {
+    const integrations = await this.getIntegrations(company.companyId)
+    if (!integrations.lisa) {
+      throw new Error("Lisa is not configured")
+    }
+
+    const connectionConfig: MSSQLConnectionConfig = {
+      username: integrations.lisa.databaseUsername,
+      password: integrations.lisa.databasePassword,
+      database: integrations.lisa.databaseName,
+      host: integrations.lisa.databaseHost,
+      port: 1433
+    }
+
+    const limit = Math.min(MAX_DELIVERY_SLIP_LIMIT, Math.max(1, Math.floor(options?.limit ?? DEFAULT_DELIVERY_SLIP_LIMIT)))
+
+    const whereClauses: string[] = []
+    if (options?.dateFrom) {
+      whereClauses.push(`d.[Date] >= '${toMssqlDateLiteral(options.dateFrom)}'`)
+    }
+    if (options?.dateTo) {
+      whereClauses.push(`d.[Date] <= '${toMssqlDateLiteral(options.dateTo)}'`)
+    }
+
+    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""
+
+    const deliveryQuery = `
+      SELECT TOP ${limit}
+        d.Dsid AS [Delivery Slip ID],
+        d.[Date] AS [Delivery Date],
+        d.Custid AS [Customer ID],
+        d.Custord AS [Customer Order ID],
+        d.Invgrp AS [Inventory Group ID],
+        d.ShipMode AS [Ship Mode],
+        d.Carrier AS [Carrier],
+        d.Truckno AS [Truck Number],
+        d.Posted AS [Posted]
+      FROM dbo.Delslip d
+      ${whereSql}
+      ORDER BY d.[Date] DESC, d.Dsid DESC;
+    `
+
+    const deliveryRows = await executeMSSQLQuery(connectionConfig, deliveryQuery)
+    if (deliveryRows.length === 0) {
+      return { data: [] }
+    }
+
+    const deliveryIds = Array.from(new Set(deliveryRows.map((row) => String(row["Delivery Slip ID"])).filter(Boolean)))
+    const escapedDeliveryIds = deliveryIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(", ")
+
+    const tagsQuery = `
+      SELECT
+        t.Dest AS [Delivery Slip ID],
+        t.Tagid AS [Tag ID],
+        t.Prodid AS [Product ID],
+        p.Descrip AS [Product Description],
+        t.[Status] AS [Tag Status],
+        t.Source AS [Source],
+        t.Dest AS [Destination],
+        t.Sourcedate AS [Source Date],
+        t.Destdate AS [Destination Date],
+        t.Pcs AS [Pieces],
+        t.Fbm AS [FBM],
+        t.M3 AS [M3]
+      FROM dbo.Tag t
+      LEFT JOIN dbo.Product p ON p.Prodid = t.Prodid
+      WHERE t.Dest IN (${escapedDeliveryIds});
+    `
+
+    const linkedOrdersQuery = `
+      SELECT
+        do.Delslip AS [Delivery Slip ID],
+        do.Orderno AS [Order ID]
+      FROM dbo.Delslip_Order do
+      WHERE do.Delslip IN (${escapedDeliveryIds});
+    `
+
+    const linkedInvoicesQuery = `
+      SELECT
+        idl.Delslip AS [Delivery Slip ID],
+        idl.Invoice AS [Invoice ID]
+      FROM dbo.Invoice_Delslip idl
+      WHERE idl.Delslip IN (${escapedDeliveryIds});
+    `
+
+    const invoicePriceByProductQuery = `
+      SELECT
+        idl.Delslip AS [Delivery Slip ID],
+        idet.Prodid AS [Product ID],
+        ROUND(
+        CASE
+          WHEN SUM(ISNULL(idet.Qty, 0)) = 0 THEN AVG(CAST(idet.Price AS float))
+          ELSE SUM(CAST(idet.Price AS float) * ISNULL(idet.Qty, 0)) / NULLIF(SUM(ISNULL(idet.Qty, 0)), 0)
+        END
+        , 2) AS [Average Invoice Price Per 1000 FBM]
+      FROM dbo.Invoice_Delslip idl
+      INNER JOIN dbo.Invoice_Det idet ON idet.ID = idl.Invoice
+      WHERE idl.Delslip IN (${escapedDeliveryIds})
+        AND idet.Prodid IS NOT NULL
+      GROUP BY idl.Delslip, idet.Prodid;
+    `
+
+    const [tagRows, linkedOrderRows, linkedInvoiceRows, invoicePriceRows] = await Promise.all([
+      executeMSSQLQuery(connectionConfig, tagsQuery),
+      executeMSSQLQuery(connectionConfig, linkedOrdersQuery),
+      executeMSSQLQuery(connectionConfig, linkedInvoicesQuery),
+      executeMSSQLQuery(connectionConfig, invoicePriceByProductQuery)
+    ])
+
+    const invoicePriceByDeliveryAndProduct = new Map<string, number>()
+    for (const row of invoicePriceRows) {
+      const deliverySlipId = toNullableString(row["Delivery Slip ID"])
+      const productId = toNullableString(row["Product ID"])
+      if (!deliverySlipId || !productId) continue
+      invoicePriceByDeliveryAndProduct.set(
+        `${deliverySlipId}::${productId}`,
+        toNumber(row["Average Invoice Price Per 1000 FBM"])
+      )
+    }
+
+    const reportRows = deliveryRows.map((delivery) => {
+      const deliverySlipId = String(delivery["Delivery Slip ID"])
+      const tags = tagRows
+        .filter((tag) => tag["Delivery Slip ID"] === deliverySlipId)
+        .map((tag) => {
+          const productId = toNullableString(tag["Product ID"])
+          return {
+            tagId: String(tag["Tag ID"]),
+            productId,
+          productDescription: toNullableString(tag["Product Description"]),
+          invoicePricePer1000FBM: productId ? invoicePriceByDeliveryAndProduct.get(`${deliverySlipId}::${productId}`) ?? null : null,
+          status: toNullableString(tag["Tag Status"]),
+          source: toNullableString(tag["Source"]),
+          destination: toNullableString(tag["Destination"]),
+          sourceDate: toNullableIsoString(tag["Source Date"]),
+          destinationDate: toNullableIsoString(tag["Destination Date"]),
+          pieces: toNumber(tag["Pieces"]),
+          fbm: toNumber(tag["FBM"]),
+          m3: toNumber(tag["M3"])
+          }
+        })
+
+      const linkedOrderIds = Array.from(
+        new Set(
+          linkedOrderRows
+            .filter((row) => row["Delivery Slip ID"] === deliverySlipId)
+            .map((row) => toNullableString(row["Order ID"]))
+            .filter((row): row is string => !!row)
+        )
+      )
+
+      const linkedInvoiceIds = Array.from(
+        new Set(
+          linkedInvoiceRows
+            .filter((row) => row["Delivery Slip ID"] === deliverySlipId)
+            .map((row) => toNullableString(row["Invoice ID"]))
+            .filter((row): row is string => !!row)
+        )
+      )
+
+      return {
+        deliverySlipId,
+        deliveryDate: toNullableIsoString(delivery["Delivery Date"]),
+        customerId: toNullableString(delivery["Customer ID"]),
+        customerOrderId: toNullableString(delivery["Customer Order ID"]),
+        inventoryGroupId: toNullableString(delivery["Inventory Group ID"]),
+        shipMode: toNullableString(delivery["Ship Mode"]),
+        carrier: toNullableString(delivery["Carrier"]),
+        truckNumber: toNullableString(delivery["Truck Number"]),
+        posted: toNullableString(delivery["Posted"]),
+        linkedOrderIds,
+        linkedInvoiceIds,
+        tagCount: tags.length,
+        totalPieces: tags.reduce((sum, tag) => sum + tag.pieces, 0),
+        totalFBM: tags.reduce((sum, tag) => sum + tag.fbm, 0),
+        totalM3: tags.reduce((sum, tag) => sum + tag.m3, 0),
+        tags
+      }
+    })
+
+    return {
+      data: reportRows
+    }
   }
 }
