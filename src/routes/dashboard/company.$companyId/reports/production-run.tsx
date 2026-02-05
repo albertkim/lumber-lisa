@@ -97,6 +97,7 @@ function RouteComponent() {
             runInputValue: run.runInputValue,
             runOutputCostValue: run.runOutputCostValue,
             runOutputMarketValue: run.runOutputMarketValue,
+            runOutputInvoiceValue: run.runOutputInvoiceValue,
             inputTagCount: run.inputTagCount,
             outputTagCount: run.outputTagCount,
             runInputPieces: run.inputPieces,
@@ -116,7 +117,8 @@ function RouteComponent() {
             productRunCost: product.runProductCost,
             productRunMarket: product.runProductMarket,
             productRunPurchaseMarket: product.runProductPurchaseMarket,
-            productRunLineCount: product.runProductLineCount
+            productRunLineCount: product.runProductLineCount,
+            productOutputInvoiceValue: product.outputInvoiceValue
           }))
         : [
             {
@@ -128,6 +130,7 @@ function RouteComponent() {
               runInputValue: run.runInputValue,
               runOutputCostValue: run.runOutputCostValue,
               runOutputMarketValue: run.runOutputMarketValue,
+              runOutputInvoiceValue: run.runOutputInvoiceValue,
               inputTagCount: run.inputTagCount,
               outputTagCount: run.outputTagCount,
               runInputPieces: run.inputPieces,
@@ -147,7 +150,8 @@ function RouteComponent() {
               productRunCost: null,
               productRunMarket: null,
               productRunPurchaseMarket: null,
-              productRunLineCount: 0
+              productRunLineCount: 0,
+              productOutputInvoiceValue: null
             }
           ]
     )
@@ -190,6 +194,8 @@ function RouteComponent() {
       return next
     })
   }
+
+  console.log(report)
 
   return (
     <div className="space-y-4">
@@ -237,7 +243,7 @@ function RouteComponent() {
                 return (  
                 <React.Fragment key={run.runId}>
                   <TableRow className="bg-gray-200 hover:bg-gray-300">
-                    <TableCell colSpan={4} className="py-2 font-medium">
+                    <TableCell colSpan={5} className="py-2 font-medium">
                       <div>
                         <span className="inline-block w-36">Run ID:</span> {run.runId}
                       </div>
@@ -266,14 +272,23 @@ function RouteComponent() {
                         <span className="inline-block w-36">Output value (cost):</span>
                         {run.runOutputCostValue === null ? "-" : <span className="bg-green-700 text-white p-1"><Currency value={run.runOutputCostValue} /></span>}
                       </div>
+                      <br />
                       <div className="mb-2">
                         <span className="inline-block w-36">Output value (market):</span>
-                        {run.runOutputMarketValue === null ? "-" : <span className="bg-blue-500 text-white p-1"><Currency value={run.runOutputMarketValue} /></span>}
+                        {run.runOutputMarketValue === null ? "-" : <span className="bg-green-700 text-white p-1"><Currency value={run.runOutputMarketValue} /></span>}
                       </div>
-
+                      <div className="mb-2">
+                        <span className="inline-block w-36">Profit (market):</span>
+                        {run.runOutputMarketValue === null || run.runOutputCostValue === null ? "-" : <span className="bg-green-700 text-white p-1"><Currency value={run.runOutputMarketValue - run.runOutputCostValue} /></span>}
+                      </div>
+                      <br />
                       <div className="mb-2">
                         <span className="inline-block w-36">Output value (invoices):</span>
-                        Coming soon...
+                        {run.runOutputInvoiceValue === null ? "-" : <span className="bg-blue-500 text-white p-1"><Currency value={run.runOutputInvoiceValue} /></span>}
+                      </div>
+                      <div className="mb-2">
+                        <span className="inline-block w-36">Profit (invoices):</span>
+                        {run.runOutputInvoiceValue === null || run.runOutputCostValue === null ? "-" : <span className="bg-blue-500 text-white p-1"><Currency value={run.runOutputInvoiceValue - run.runOutputCostValue} /></span>}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -282,6 +297,7 @@ function RouteComponent() {
                     <TableHead className="py-2">Run Cost</TableHead>
                     <TableHead className="py-2">Input FBM</TableHead>
                     <TableHead className="py-2">Output FBM</TableHead>
+                    <TableHead className="py-2">Output Invoice $</TableHead>
                   </TableRow>
                   {run.products.map((product) => {
                     const pricedDeliveries = product.deliveries.filter((delivery) => delivery.invoicePricePer1000FBM !== null)
@@ -296,6 +312,9 @@ function RouteComponent() {
                             0
                           ) / weightedDenominator
                         : null
+                    const deliveredFbm = Math.round(
+                      product.deliveries.reduce((sum, delivery) => sum + delivery.fbm, 0) * 100
+                    ) / 100
 
                     return (
                     <React.Fragment key={`${run.runId}-${product.productId}`}>
@@ -330,11 +349,19 @@ function RouteComponent() {
                         </TableCell>
                         <TableCell className="py-2">
                           <Number value={product.outputFBM} />
+                          {deliveredFbm > 0 && (
+                            <div className="text-gray-500 text-[11px]">
+                              (<Number value={deliveredFbm} /> delivered)
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-2">
+                          {product.outputInvoiceValue === null ? "-" : <Currency value={product.outputInvoiceValue} />}
                         </TableCell>
                       </TableRow>
                       {expandedProductKeys.has(`${run.runId}-${product.productId}`) && (
                         <TableRow>
-                          <TableCell colSpan={4} className="bg-muted/30 py-3 pl-8">
+                          <TableCell colSpan={5} className="bg-muted/30 py-3 pl-8">
                             <Tabs defaultValue="deliveries" className="w-full">
                               <TabsList>
                                 <TabsTrigger value="deliveries">Deliveries</TabsTrigger>
@@ -356,6 +383,7 @@ function RouteComponent() {
                                         <TableHead>Pieces</TableHead>
                                         <TableHead>FBM</TableHead>
                                         <TableHead>M3</TableHead>
+                                        <TableHead>Invoice Value</TableHead>
                                       </TableRow>
                                       {product.deliveries.map((delivery) => (
                                         <TableRow key={`${run.runId}-${product.productId}-${delivery.deliverySlipId}`}>
@@ -381,11 +409,14 @@ function RouteComponent() {
                                           <TableCell>
                                             <Number value={delivery.m3} />
                                           </TableCell>
+                                          <TableCell>
+                                            {delivery.invoiceValue === null ? "-" : <Currency value={delivery.invoiceValue} />}
+                                          </TableCell>
                                         </TableRow>
                                       ))}
                                       {product.deliveries.length === 0 && (
                                         <TableRow>
-                                          <TableCell colSpan={8} className="text-center py-2">
+                                          <TableCell colSpan={9} className="text-center py-2">
                                             No invoiced deliveries found for this product
                                           </TableCell>
                                         </TableRow>
@@ -460,7 +491,7 @@ function RouteComponent() {
                   )})}
                   {run.products.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-4">
+                      <TableCell colSpan={5} className="text-center py-4">
                         No product flow data available for this run
                       </TableCell>
                     </TableRow>
@@ -469,7 +500,7 @@ function RouteComponent() {
               )})}
               {visibleRuns.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-4">
+                  <TableCell colSpan={5} className="text-center py-4">
                     No data available
                   </TableCell>
                 </TableRow>

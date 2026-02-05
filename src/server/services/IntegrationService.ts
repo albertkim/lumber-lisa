@@ -591,6 +591,7 @@ export const IntegrationService = {
               deliveryDate: string | null
               invoiceIds: Set<string>
               invoicePricePer1000FBM: number | null
+              invoiceValue: number | null
               tagIds: Set<string>
               pieces: number
               fbm: number
@@ -609,12 +610,14 @@ export const IntegrationService = {
             if (!deliverySlipId || !tagId) continue
 
             if (!deliveryMap.has(deliverySlipId)) {
+              const invoicePricePer1000FBM =
+                invoicePriceByDeliveryAndProduct.get(`${deliverySlipId}::${product.productId}`) ?? null
               deliveryMap.set(deliverySlipId, {
                 deliverySlipId,
                 deliveryDate: toNullableIsoString(row["Delivery Date"]),
                 invoiceIds: new Set<string>(),
-                invoicePricePer1000FBM:
-                  invoicePriceByDeliveryAndProduct.get(`${deliverySlipId}::${product.productId}`) ?? null,
+                invoicePricePer1000FBM,
+                invoiceValue: null,
                 tagIds: new Set<string>(),
                 pieces: 0,
                 fbm: 0,
@@ -632,19 +635,31 @@ export const IntegrationService = {
           }
 
           const deliveries = Array.from(deliveryMap.values())
-            .map((delivery) => ({
-              deliverySlipId: delivery.deliverySlipId,
-              deliveryDate: delivery.deliveryDate,
-              invoiceIds: Array.from(delivery.invoiceIds),
-              invoicePricePer1000FBM: delivery.invoicePricePer1000FBM,
-              tagCount: delivery.tagIds.size,
-              pieces: roundTo2(delivery.pieces),
-              fbm: roundTo2(delivery.fbm),
-              m3: roundTo2(delivery.m3)
-            }))
+            .map((delivery) => {
+              const invoiceValue =
+                delivery.invoicePricePer1000FBM === null
+                  ? null
+                  : roundTo2((delivery.fbm / 1000) * delivery.invoicePricePer1000FBM)
+
+              return {
+                deliverySlipId: delivery.deliverySlipId,
+                deliveryDate: delivery.deliveryDate,
+                invoiceIds: Array.from(delivery.invoiceIds),
+                invoicePricePer1000FBM: delivery.invoicePricePer1000FBM,
+                invoiceValue,
+                tagCount: delivery.tagIds.size,
+                pieces: roundTo2(delivery.pieces),
+                fbm: roundTo2(delivery.fbm),
+                m3: roundTo2(delivery.m3)
+              }
+            })
             .sort((a, b) => b.fbm - a.fbm)
 
           const runProductCost = runProductCostMap.get(`${runId}::${product.productId}`)
+          const outputInvoiceValue = deliveries.reduce(
+            (sum, delivery) => sum + (delivery.invoiceValue ?? 0),
+            0
+          )
 
           return {
             ...product,
@@ -653,12 +668,17 @@ export const IntegrationService = {
             runProductMarket: runProductCost?.market ?? null,
             runProductPurchaseMarket: runProductCost?.purchaseMarket ?? null,
             runProductLineCount: runProductCost?.lineCount ?? 0,
+            outputInvoiceValue: outputInvoiceValue > 0 ? roundTo2(outputInvoiceValue) : null,
             deltaPieces: roundTo2(product.outputPieces - product.inputPieces),
             deltaFBM: roundTo2(product.outputFBM - product.inputFBM),
             deltaM3: roundTo2(product.outputM3 - product.inputM3)
           }
         })
         .sort((a, b) => Math.abs(b.deltaFBM) - Math.abs(a.deltaFBM))
+
+      const runOutputInvoiceValue = roundTo2(
+        products.reduce((sum, product) => sum + (product.outputInvoiceValue ?? 0), 0)
+      )
 
       return {
         runId,
@@ -678,6 +698,7 @@ export const IntegrationService = {
           runRow["Run Output Market Value"] === null || runRow["Run Output Market Value"] === undefined
             ? null
             : roundTo2(toNumber(runRow["Run Output Market Value"])),
+        runOutputInvoiceValue: runOutputInvoiceValue > 0 ? runOutputInvoiceValue : null,
         inputTagCount: inputTags.size,
         outputTagCount: outputTags.size,
         inputPieces,
