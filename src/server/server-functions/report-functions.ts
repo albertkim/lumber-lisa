@@ -32,6 +32,9 @@ export const getProductionRunReport = createServerFn({ method: "POST" })
     z.object({
       companyId: z.number(),
       limit: z.number().int().min(1).max(200).optional(),
+      offset: z.number().int().min(0).optional(),
+      runId: z.string().optional(),
+      productQuery: z.string().optional(),
       dateFrom: z.string().optional(),
       dateTo: z.string().optional()
     })
@@ -41,6 +44,9 @@ export const getProductionRunReport = createServerFn({ method: "POST" })
     const company = await CompanyService.getCompanyById(companyId)
     const report = await IntegrationService.runLisaProductionRunQuery(company, {
       limit: data.limit,
+      offset: data.offset,
+      runId: data.runId,
+      productQuery: data.productQuery,
       dateFrom: data.dateFrom,
       dateTo: data.dateTo
     })
@@ -53,6 +59,9 @@ export const getDeliverySlipReport = createServerFn({ method: "POST" })
     z.object({
       companyId: z.number(),
       limit: z.number().int().min(1).max(300).optional(),
+      offset: z.number().int().min(0).optional(),
+      searchQuery: z.string().optional(),
+      productQuery: z.string().optional(),
       dateFrom: z.string().optional(),
       dateTo: z.string().optional()
     })
@@ -62,6 +71,9 @@ export const getDeliverySlipReport = createServerFn({ method: "POST" })
     const company = await CompanyService.getCompanyById(companyId)
     const report = await IntegrationService.runLisaDeliverySlipQuery(company, {
       limit: data.limit,
+      offset: data.offset,
+      searchQuery: data.searchQuery,
+      productQuery: data.productQuery,
       dateFrom: data.dateFrom,
       dateTo: data.dateTo
     })

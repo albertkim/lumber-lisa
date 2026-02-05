@@ -143,7 +143,12 @@ export const LisaProductionRunSchema = z.object({
 export type LisaProductionRun = z.infer<typeof LisaProductionRunSchema>
 
 export const LisaProductionRunReportSchema = z.object({
-  data: z.array(LisaProductionRunSchema)
+  data: z.array(LisaProductionRunSchema),
+  total: z.number(),
+  offset: z.number(),
+  limit: z.number(),
+  page: z.number(),
+  pageCount: z.number()
 })
 
 export type LisaProductionRunReport = z.infer<typeof LisaProductionRunReportSchema>
@@ -187,7 +192,12 @@ export const LisaDeliverySlipSchema = z.object({
 export type LisaDeliverySlip = z.infer<typeof LisaDeliverySlipSchema>
 
 export const LisaDeliverySlipReportSchema = z.object({
-  data: z.array(LisaDeliverySlipSchema)
+  data: z.array(LisaDeliverySlipSchema),
+  total: z.number(),
+  offset: z.number(),
+  limit: z.number(),
+  page: z.number(),
+  pageCount: z.number()
 })
 
 export type LisaDeliverySlipReport = z.infer<typeof LisaDeliverySlipReportSchema>

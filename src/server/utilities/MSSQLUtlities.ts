@@ -1,11 +1,16 @@
 import { Connection, Request } from "tedious"
 
+const DEFAULT_CONNECT_TIMEOUT_MS = 15000
+const DEFAULT_REQUEST_TIMEOUT_MS = 60000
+
 export interface MSSQLConnectionConfig {
   username: string
   password: string
   database: string
   host: string
   port?: number
+  connectTimeoutMs?: number
+  requestTimeoutMs?: number
 }
 
 export async function executeMSSQLQuery(
@@ -23,6 +28,8 @@ export async function executeMSSQLQuery(
     options: {
       database: connectionConfig.database,
       port: connectionConfig.port || 1433,
+      connectTimeout: connectionConfig.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS,
+      requestTimeout: connectionConfig.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
       trustServerCertificate: true,
       encrypt: true
     },

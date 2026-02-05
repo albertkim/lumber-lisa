@@ -2,6 +2,14 @@ import { Number } from "@/components/formatting/Number"
 import { Currency } from "@/components/formatting/Currency"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -36,8 +44,10 @@ export const Route = createFileRoute("/dashboard/company/$companyId/reports/prod
 
 function RouteComponent() {
   const { company } = useAuth()
+  const pageSize = 25
   const [report, setReport] = useState<LisaProductionRunReport | null>(null)
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
   const [expandedProductKeys, setExpandedProductKeys] = useState<Set<string>>(new Set())
   const [runSearchQuery, setRunSearchQuery] = useState("")
   const [productSearchQuery, setProductSearchQuery] = useState("")
@@ -54,7 +64,10 @@ function RouteComponent() {
           },
           data: {
             companyId: company.companyId,
-            limit: 50
+            limit: pageSize,
+            offset: (page - 1) * pageSize,
+            runId: debouncedRunSearchQuery || undefined,
+            productQuery: debouncedProductSearchQuery || undefined
           }
         })
         setReport(reportResponse)
@@ -65,7 +78,11 @@ function RouteComponent() {
       }
     }
     fetchReport()
-  }, [company])
+  }, [company, page, pageSize, debouncedRunSearchQuery, debouncedProductSearchQuery])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedRunSearchQuery, debouncedProductSearchQuery])
 
   const exportCSV = () => {
     if (!report) return
@@ -148,32 +165,23 @@ function RouteComponent() {
     a.click()
   }
 
-  const filteredRuns =
-    report?.data
-      .filter((run) => {
-        if (!debouncedRunSearchQuery) return true
-        const searchLower = debouncedRunSearchQuery.toLowerCase()
-        return (
-          run.runId.toLowerCase().includes(searchLower) ||
-          run.machineId?.toLowerCase().includes(searchLower) ||
-          run.profileId?.toLowerCase().includes(searchLower) ||
-          run.workOrderId?.toLowerCase().includes(searchLower) ||
-          run.supplierId?.toLowerCase().includes(searchLower) ||
-          run.inventoryGroupId?.toLowerCase().includes(searchLower)
+  const pageCount = report?.pageCount ?? 0
+  const currentPage = report?.page ?? page
+  const pageNumbers = Array.from({ length: pageCount }, (_, index) => index + 1)
+  const visibleRuns = report
+    ? report.data.filter((run) => {
+        const runDeltaIsZero =
+          Math.abs(run.deltaPieces) <= 0.001 && Math.abs(run.deltaFBM) <= 0.01 && Math.abs(run.deltaM3) <= 0.001
+        const productsDeltaAreZero = run.products.every(
+          (product) =>
+            Math.abs(product.deltaPieces) <= 0.001 &&
+            Math.abs(product.deltaFBM) <= 0.01 &&
+            Math.abs(product.deltaM3) <= 0.001
         )
+        return !(runDeltaIsZero && productsDeltaAreZero)
       })
-      .map((run) => ({
-        ...run,
-        products: run.products.filter((product) => {
-          if (!debouncedProductSearchQuery) return true
-          const searchLower = debouncedProductSearchQuery.toLowerCase()
-          return (
-            product.productId.toLowerCase().includes(searchLower) ||
-            product.productDescription?.toLowerCase().includes(searchLower)
-          )
-        })
-      }))
-      .filter((run) => !debouncedProductSearchQuery || run.products.length > 0) ?? []
+    : []
+  const hiddenRunCount = report ? report.data.length - visibleRuns.length : 0
 
   const toggleProductExpansion = (key: string) => {
     setExpandedProductKeys((previous) => {
@@ -229,7 +237,7 @@ function RouteComponent() {
         <div className="w-full max-w-full overflow-x-auto border rounded-md">
           <Table className="min-w-max text-xs">
             <TableBody>
-              {filteredRuns.map((run) => (
+              {visibleRuns.map((run) => (
                 <React.Fragment key={run.runId}>
                   <TableRow className="bg-gray-200 hover:bg-gray-300">
                     <TableCell colSpan={11} className="py-2 font-medium">
@@ -346,7 +354,7 @@ function RouteComponent() {
                       })()}
                       {expandedProductKeys.has(`${run.runId}-${product.productId}`) && (
                         <TableRow>
-                          <TableCell colSpan={12} className="bg-muted/30 py-3 pl-8">
+                          <TableCell colSpan={11} className="bg-muted/30 py-3 pl-8">
                             <Tabs defaultValue="deliveries" className="w-full">
                               <TabsList>
                                 <TabsTrigger value="deliveries">Deliveries</TabsTrigger>
@@ -472,22 +480,72 @@ function RouteComponent() {
                   ))}
                   {run.products.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={12} className="text-center py-4">
+                      <TableCell colSpan={11} className="text-center py-4">
                         No product flow data available for this run
                       </TableCell>
                     </TableRow>
                   )}
                 </React.Fragment>
               ))}
-              {filteredRuns.length === 0 && (
+              {visibleRuns.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center py-4">
+                  <TableCell colSpan={11} className="text-center py-4">
                     No data available
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+        </div>
+      )}
+      {report && pageCount > 0 && (
+        <div className="w-full max-w-full overflow-hidden">
+          {hiddenRunCount > 0 && (
+            <div className="text-gray-500 text-xs mb-2">{hiddenRunCount} pass-through production runs hidden</div>
+          )}
+          <Pagination className="mx-0 w-full max-w-full justify-start">
+            <PaginationContent className="flex-wrap">
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(event) => {
+                  event.preventDefault()
+                  if (currentPage > 1) setPage(currentPage - 1)
+                }}
+                className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+            {pageNumbers.map((pageNumber) => (
+              <PaginationItem key={pageNumber}>
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === pageNumber}
+                  className={
+                    currentPage === pageNumber
+                      ? "bg-black text-white hover:bg-black hover:text-white border-black"
+                      : undefined
+                  }
+                  onClick={(event) => {
+                    event.preventDefault()
+                    setPage(pageNumber)
+                  }}
+                >
+                  {pageNumber}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(event) => {
+                  event.preventDefault()
+                  if (currentPage < pageCount) setPage(currentPage + 1)
+                }}
+                className={currentPage >= pageCount ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
       <div style={{ height: 100 }} />

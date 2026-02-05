@@ -2,6 +2,14 @@ import { Currency } from "@/components/formatting/Currency"
 import { Number } from "@/components/formatting/Number"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/contexts/AuthContext"
@@ -35,10 +43,14 @@ export const Route = createFileRoute("/dashboard/company/$companyId/reports/deli
 
 function RouteComponent() {
   const { company } = useAuth()
+  const pageSize = 25
   const [report, setReport] = useState<LisaDeliverySlipReport | null>(null)
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
+  const [productSearchQuery, setProductSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const debouncedProductSearchQuery = useDebounce(productSearchQuery, 300)
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -50,7 +62,10 @@ function RouteComponent() {
           },
           data: {
             companyId: company.companyId,
-            limit: 100
+            limit: pageSize,
+            offset: (page - 1) * pageSize,
+            searchQuery: debouncedSearchQuery || undefined,
+            productQuery: debouncedProductSearchQuery || undefined
           }
         })
         setReport(reportResponse)
@@ -61,7 +76,11 @@ function RouteComponent() {
       }
     }
     fetchReport()
-  }, [company])
+  }, [company, page, pageSize, debouncedSearchQuery, debouncedProductSearchQuery])
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearchQuery, debouncedProductSearchQuery])
 
   const exportCSV = () => {
     if (!report) return
@@ -139,18 +158,9 @@ function RouteComponent() {
     a.click()
   }
 
-  const filteredData =
-    report?.data.filter((delivery) => {
-      if (!debouncedSearchQuery) return true
-      const searchLower = debouncedSearchQuery.toLowerCase()
-      return (
-        delivery.deliverySlipId.toLowerCase().includes(searchLower) ||
-        delivery.customerId?.toLowerCase().includes(searchLower) ||
-        delivery.customerOrderId?.toLowerCase().includes(searchLower) ||
-        delivery.linkedOrderIds.some((orderId) => orderId.toLowerCase().includes(searchLower)) ||
-        delivery.linkedInvoiceIds.some((invoiceId) => invoiceId.toLowerCase().includes(searchLower))
-      )
-    }) ?? []
+  const pageCount = report?.pageCount ?? 0
+  const currentPage = report?.page ?? page
+  const pageNumbers = Array.from({ length: pageCount }, (_, index) => index + 1)
 
   return (
     <div className="space-y-4">
@@ -163,6 +173,15 @@ function RouteComponent() {
             placeholder="Search delivery slips"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 max-w-72"
+          />
+        </div>
+        <div className="relative">
+          <SearchIcon className="absolute left-2 top-2.5 h-4 w-4" />
+          <Input
+            placeholder="Search products"
+            value={productSearchQuery}
+            onChange={(e) => setProductSearchQuery(e.target.value)}
             className="pl-8 max-w-72"
           />
         </div>
@@ -185,7 +204,7 @@ function RouteComponent() {
         <div className="w-full max-w-full overflow-x-auto border rounded-md">
           <Table className="min-w-max text-xs">
             <TableBody>
-              {filteredData.map((delivery) => (
+              {report.data.map((delivery) => (
                 <React.Fragment key={delivery.deliverySlipId}>
                   <TableRow className="bg-gray-200 hover:bg-gray-300">
                     <TableCell colSpan={11} className="py-2 font-medium">
@@ -270,7 +289,7 @@ function RouteComponent() {
                   )}
                 </React.Fragment>
               ))}
-              {filteredData.length === 0 && (
+              {report.data.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={11} className="text-center py-4">
                     No data available
@@ -279,6 +298,53 @@ function RouteComponent() {
               )}
             </TableBody>
           </Table>
+        </div>
+      )}
+      {report && pageCount > 0 && (
+        <div className="w-full max-w-full overflow-hidden">
+          <Pagination className="mx-0 w-full max-w-full justify-start">
+            <PaginationContent className="flex-wrap">
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    if (currentPage > 1) setPage(currentPage - 1)
+                  }}
+                  className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              {pageNumbers.map((pageNumber) => (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink
+                    href="#"
+                    isActive={currentPage === pageNumber}
+                    className={
+                      currentPage === pageNumber
+                        ? "bg-black text-white hover:bg-black hover:text-white border-black"
+                        : undefined
+                    }
+                    onClick={(event) => {
+                      event.preventDefault()
+                      setPage(pageNumber)
+                    }}
+                  >
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    if (currentPage < pageCount) setPage(currentPage + 1)
+                  }}
+                  className={currentPage >= pageCount ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
       <div style={{ height: 100 }} />

@@ -107,19 +107,25 @@ const LISA_CURRENT_INVENTORY_QUERY = `
 
 type ProductionRunOptions = {
   limit?: number
+  offset?: number
+  runId?: string
+  productQuery?: string
   dateFrom?: string
   dateTo?: string
 }
 
 type DeliverySlipOptions = {
   limit?: number
+  offset?: number
+  searchQuery?: string
+  productQuery?: string
   dateFrom?: string
   dateTo?: string
 }
 
-const DEFAULT_PRODUCTION_RUN_LIMIT = 50
+const DEFAULT_PRODUCTION_RUN_LIMIT = 25
 const MAX_PRODUCTION_RUN_LIMIT = 200
-const DEFAULT_DELIVERY_SLIP_LIMIT = 100
+const DEFAULT_DELIVERY_SLIP_LIMIT = 25
 const MAX_DELIVERY_SLIP_LIMIT = 300
 
 function toMssqlDateLiteral(value: string): string {
@@ -239,6 +245,7 @@ export const IntegrationService = {
       MAX_PRODUCTION_RUN_LIMIT,
       Math.max(1, Math.floor(options?.limit ?? DEFAULT_PRODUCTION_RUN_LIMIT))
     )
+    const offset = Math.max(0, Math.floor(options?.offset ?? 0))
 
     const whereClauses: string[] = []
     if (options?.dateFrom) {
@@ -247,68 +254,62 @@ export const IntegrationService = {
     if (options?.dateTo) {
       whereClauses.push(`rh.[Date] <= '${toMssqlDateLiteral(options.dateTo)}'`)
     }
+    if (options?.runId?.trim()) {
+      const runIdSearch = toMssqlDateLiteral(options.runId.trim())
+      whereClauses.push(`rh.ID LIKE '%${runIdSearch}%'`)
+    }
+    if (options?.productQuery?.trim()) {
+      const productSearch = toMssqlDateLiteral(options.productQuery.trim())
+      const productRunIdQuery = `
+        SELECT DISTINCT t.Source AS [Run ID]
+        FROM dbo.Tag t
+        LEFT JOIN dbo.Product p ON p.Prodid = t.Prodid
+        WHERE t.Source IS NOT NULL
+          AND (
+            t.Prodid LIKE '%${productSearch}%'
+            OR p.Descrip LIKE '%${productSearch}%'
+          )
+        UNION
+        SELECT DISTINCT t.Dest AS [Run ID]
+        FROM dbo.Tag t
+        LEFT JOIN dbo.Product p ON p.Prodid = t.Prodid
+        WHERE t.Dest IS NOT NULL
+          AND (
+            t.Prodid LIKE '%${productSearch}%'
+            OR p.Descrip LIKE '%${productSearch}%'
+          );
+      `
+
+      const productRunIdRows = await executeMSSQLQuery(connectionConfig, productRunIdQuery)
+      const productRunIds = Array.from(
+        new Set(
+          productRunIdRows
+            .map((row) => toNullableString(row["Run ID"]))
+            .filter((value): value is string => Boolean(value))
+        )
+      )
+
+      if (productRunIds.length === 0) {
+        return { data: [], total: 0, offset, limit, page: 1, pageCount: 0 }
+      }
+
+      const escapedProductRunIds = productRunIds.map((runId) => `'${runId.replace(/'/g, "''")}'`).join(", ")
+      whereClauses.push(`rh.ID IN (${escapedProductRunIds})`)
+    }
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""
 
+    const totalCountQuery = `
+      SELECT COUNT(*) AS [Total Count]
+      FROM dbo.Runhdr rh
+      ${whereSql};
+    `
+
+    const totalCountResult = await executeMSSQLQuery(connectionConfig, totalCountQuery)
+    const total = totalCountResult.length > 0 ? toNumber(totalCountResult[0]["Total Count"]) : 0
+
     const runQuery = `
-      WITH run_product_flow AS (
-        SELECT
-          t.Source AS [Run ID],
-          t.Prodid AS [Product ID],
-          SUM(ISNULL(t.Pcs, 0)) AS [Out Pieces],
-          SUM(ISNULL(t.Fbm, 0)) AS [Out FBM],
-          SUM(ISNULL(t.M3, 0)) AS [Out M3],
-          CAST(0 AS float) AS [In Pieces],
-          CAST(0 AS float) AS [In FBM],
-          CAST(0 AS float) AS [In M3]
-        FROM dbo.Tag t
-        WHERE t.Source IS NOT NULL
-          AND t.Prodid IS NOT NULL
-        GROUP BY t.Source, t.Prodid
-
-        UNION ALL
-
-        SELECT
-          t.Dest AS [Run ID],
-          t.Prodid AS [Product ID],
-          CAST(0 AS float) AS [Out Pieces],
-          CAST(0 AS float) AS [Out FBM],
-          CAST(0 AS float) AS [Out M3],
-          SUM(ISNULL(t.Pcs, 0)) AS [In Pieces],
-          SUM(ISNULL(t.Fbm, 0)) AS [In FBM],
-          SUM(ISNULL(t.M3, 0)) AS [In M3]
-        FROM dbo.Tag t
-        WHERE t.Dest IS NOT NULL
-          AND t.Prodid IS NOT NULL
-        GROUP BY t.Dest, t.Prodid
-      ),
-      run_product_totals AS (
-        SELECT
-          [Run ID],
-          [Product ID],
-          SUM([Out Pieces]) AS [Out Pieces],
-          SUM([Out FBM]) AS [Out FBM],
-          SUM([Out M3]) AS [Out M3],
-          SUM([In Pieces]) AS [In Pieces],
-          SUM([In FBM]) AS [In FBM],
-          SUM([In M3]) AS [In M3]
-        FROM run_product_flow
-        GROUP BY [Run ID], [Product ID]
-      ),
-      qualifying_runs AS (
-        SELECT [Run ID]
-        FROM run_product_totals
-        GROUP BY [Run ID]
-        HAVING MAX(
-          CASE
-            WHEN ABS([Out Pieces] - [In Pieces]) > 0.001
-              OR ABS([Out FBM] - [In FBM]) > 0.01
-              OR ABS([Out M3] - [In M3]) > 0.001
-            THEN 1 ELSE 0
-          END
-        ) = 1
-      )
-      SELECT TOP ${limit}
+      SELECT
           rh.ID AS [Run ID],
           rh.[Date] AS [Run Date],
           rh.[Status] AS [Run Status],
@@ -318,15 +319,17 @@ export const IntegrationService = {
           rh.Supplier AS [Supplier ID],
           rh.Invgrp AS [Inventory Group ID]
       FROM dbo.Runhdr rh
-      INNER JOIN qualifying_runs qr ON qr.[Run ID] = rh.ID
       ${whereSql}
-      ORDER BY rh.[Date] DESC, rh.Created_Date DESC, rh.ID DESC;
+      ORDER BY rh.[Date] DESC, rh.Created_Date DESC, rh.ID DESC
+      OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;
     `
 
     const runRows = await executeMSSQLQuery(connectionConfig, runQuery)
 
     if (runRows.length === 0) {
-      return { data: [] }
+      const page = total === 0 ? 1 : Math.floor(offset / limit) + 1
+      const pageCount = total === 0 ? 0 : Math.ceil(total / limit)
+      return { data: [], total, offset, limit, page, pageCount }
     }
 
     const runIds = Array.from(new Set(runRows.map((row) => String(row["Run ID"])).filter(Boolean)))
@@ -643,7 +646,10 @@ export const IntegrationService = {
       }
     })
 
-    return { data: runs }
+    const page = total === 0 ? 1 : Math.floor(offset / limit) + 1
+    const pageCount = total === 0 ? 0 : Math.ceil(total / limit)
+
+    return { data: runs, total, offset, limit, page, pageCount }
   },
 
   async runLisaDeliverySlipQuery(company: Company, options?: DeliverySlipOptions): Promise<LisaDeliverySlipReport> {
@@ -661,6 +667,7 @@ export const IntegrationService = {
     }
 
     const limit = Math.min(MAX_DELIVERY_SLIP_LIMIT, Math.max(1, Math.floor(options?.limit ?? DEFAULT_DELIVERY_SLIP_LIMIT)))
+    const offset = Math.max(0, Math.floor(options?.offset ?? 0))
 
     const whereClauses: string[] = []
     if (options?.dateFrom) {
@@ -669,11 +676,57 @@ export const IntegrationService = {
     if (options?.dateTo) {
       whereClauses.push(`d.[Date] <= '${toMssqlDateLiteral(options.dateTo)}'`)
     }
+    if (options?.searchQuery?.trim()) {
+      const search = toMssqlDateLiteral(options.searchQuery.trim())
+      whereClauses.push(`
+        (
+          d.Dsid LIKE '%${search}%'
+          OR d.Custid LIKE '%${search}%'
+          OR d.Custord LIKE '%${search}%'
+          OR EXISTS (
+            SELECT 1
+            FROM dbo.Delslip_Order do_filter
+            WHERE do_filter.Delslip = d.Dsid
+              AND do_filter.Orderno LIKE '%${search}%'
+          )
+          OR EXISTS (
+            SELECT 1
+            FROM dbo.Invoice_Delslip idl_filter
+            WHERE idl_filter.Delslip = d.Dsid
+              AND idl_filter.Invoice LIKE '%${search}%'
+          )
+        )
+      `)
+    }
+    if (options?.productQuery?.trim()) {
+      const productSearch = toMssqlDateLiteral(options.productQuery.trim())
+      whereClauses.push(`
+        EXISTS (
+          SELECT 1
+          FROM dbo.Tag t_filter
+          LEFT JOIN dbo.Product p_filter ON p_filter.Prodid = t_filter.Prodid
+          WHERE t_filter.Dest = d.Dsid
+            AND (
+              t_filter.Prodid LIKE '%${productSearch}%'
+              OR p_filter.Descrip LIKE '%${productSearch}%'
+            )
+        )
+      `)
+    }
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""
 
+    const totalCountQuery = `
+      SELECT COUNT(*) AS [Total Count]
+      FROM dbo.Delslip d
+      ${whereSql};
+    `
+
+    const totalCountResult = await executeMSSQLQuery(connectionConfig, totalCountQuery)
+    const total = totalCountResult.length > 0 ? toNumber(totalCountResult[0]["Total Count"]) : 0
+
     const deliveryQuery = `
-      SELECT TOP ${limit}
+      SELECT
         d.Dsid AS [Delivery Slip ID],
         d.[Date] AS [Delivery Date],
         d.Custid AS [Customer ID],
@@ -685,12 +738,15 @@ export const IntegrationService = {
         d.Posted AS [Posted]
       FROM dbo.Delslip d
       ${whereSql}
-      ORDER BY d.[Date] DESC, d.Dsid DESC;
+      ORDER BY d.[Date] DESC, d.Dsid DESC
+      OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;
     `
 
     const deliveryRows = await executeMSSQLQuery(connectionConfig, deliveryQuery)
     if (deliveryRows.length === 0) {
-      return { data: [] }
+      const page = total === 0 ? 1 : Math.floor(offset / limit) + 1
+      const pageCount = total === 0 ? 0 : Math.ceil(total / limit)
+      return { data: [], total, offset, limit, page, pageCount }
     }
 
     const deliveryIds = Array.from(new Set(deliveryRows.map((row) => String(row["Delivery Slip ID"])).filter(Boolean)))
@@ -826,8 +882,9 @@ export const IntegrationService = {
       }
     })
 
-    return {
-      data: reportRows
-    }
+    const page = total === 0 ? 1 : Math.floor(offset / limit) + 1
+    const pageCount = total === 0 ? 0 : Math.ceil(total / limit)
+
+    return { data: reportRows, total, offset, limit, page, pageCount }
   }
 }
