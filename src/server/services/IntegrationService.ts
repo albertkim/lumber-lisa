@@ -336,6 +336,23 @@ export const IntegrationService = {
 
     const escapedRunIds = runIds.map((runId) => `'${runId.replace(/'/g, "''")}'`).join(", ")
 
+    const runChargesQuery = `
+      SELECT
+        rc.Runid AS [Run ID],
+        SUM(ISNULL(rc.Amount, 0)) AS [Total Charges]
+      FROM dbo.Runcost rc
+      WHERE rc.Runid IN (${escapedRunIds})
+      GROUP BY rc.Runid;
+    `
+
+    const runChargesRows = await executeMSSQLQuery(connectionConfig, runChargesQuery)
+    const runChargesMap = new Map<string, number>()
+    for (const row of runChargesRows) {
+      const runId = toNullableString(row["Run ID"])
+      if (!runId) continue
+      runChargesMap.set(runId, roundTo2(toNumber(row["Total Charges"])))
+    }
+
     const tagFlowQuery = `
       SELECT
         t.Tagid AS [Tag ID],
@@ -699,6 +716,7 @@ export const IntegrationService = {
             ? null
             : roundTo2(toNumber(runRow["Run Output Market Value"])),
         runOutputInvoiceValue: runOutputInvoiceValue > 0 ? runOutputInvoiceValue : null,
+        runTotalCharges: runChargesMap.get(runId) ?? null,
         inputTagCount: inputTags.size,
         outputTagCount: outputTags.size,
         inputPieces,

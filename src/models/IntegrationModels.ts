@@ -133,6 +133,7 @@ export const LisaProductionRunSchema = z.object({
   runOutputCostValue: z.number().nullable(),
   runOutputMarketValue: z.number().nullable(),
   runOutputInvoiceValue: z.number().nullable(),
+  runTotalCharges: z.number().nullable(),
   inputTagCount: z.number(),
   outputTagCount: z.number(),
   inputPieces: z.number(),

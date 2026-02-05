@@ -98,6 +98,7 @@ function RouteComponent() {
             runOutputCostValue: run.runOutputCostValue,
             runOutputMarketValue: run.runOutputMarketValue,
             runOutputInvoiceValue: run.runOutputInvoiceValue,
+            runTotalCharges: run.runTotalCharges,
             inputTagCount: run.inputTagCount,
             outputTagCount: run.outputTagCount,
             runInputPieces: run.inputPieces,
@@ -131,6 +132,7 @@ function RouteComponent() {
               runOutputCostValue: run.runOutputCostValue,
               runOutputMarketValue: run.runOutputMarketValue,
               runOutputInvoiceValue: run.runOutputInvoiceValue,
+              runTotalCharges: run.runTotalCharges,
               inputTagCount: run.inputTagCount,
               outputTagCount: run.outputTagCount,
               runInputPieces: run.inputPieces,
@@ -265,8 +267,12 @@ function RouteComponent() {
                       </div>
                       <br />
                       <div className="mb-2">
-                        <span className="inline-block w-36">Input cost:</span>
+                        <span className="inline-block w-36">Input product costs:</span>
                         {run.runInputValue === null ? "-" : <span className="bg-red-700 text-white p-1"><Currency value={run.runInputValue} /></span>}
+                      </div>
+                      <div className="mb-2">
+                        <span className="inline-block w-36">Total charges:</span>
+                        {run.runTotalCharges === null ? "-" : <span className="bg-red-700 text-white p-1"><Currency value={run.runTotalCharges} /></span>}
                       </div>
                       <div className="mb-2">
                         <span className="inline-block w-36">Output value (cost):</span>
@@ -279,7 +285,11 @@ function RouteComponent() {
                       </div>
                       <div className="mb-2">
                         <span className="inline-block w-36">Profit (market):</span>
-                        {run.runOutputMarketValue === null || run.runOutputCostValue === null ? "-" : <span className="bg-green-700 text-white p-1"><Currency value={run.runOutputMarketValue - run.runOutputCostValue} /></span>}
+                        {run.runOutputMarketValue === null || run.runInputValue === null || run.runTotalCharges === null ? "-" : (
+                          <span className="bg-green-700 text-white p-1">
+                            <Currency value={run.runOutputMarketValue - run.runInputValue - run.runTotalCharges} />
+                          </span>
+                        )}
                       </div>
                       <br />
                       <div className="mb-2">
@@ -288,7 +298,11 @@ function RouteComponent() {
                       </div>
                       <div className="mb-2">
                         <span className="inline-block w-36">Profit (invoices):</span>
-                        {run.runOutputInvoiceValue === null || run.runOutputCostValue === null ? "-" : <span className="bg-blue-500 text-white p-1"><Currency value={run.runOutputInvoiceValue - run.runOutputCostValue} /></span>}
+                        {run.runOutputInvoiceValue === null || run.runInputValue === null || run.runTotalCharges === null ? "-" : (
+                          <span className="bg-blue-500 text-white p-1">
+                            <Currency value={run.runOutputInvoiceValue - run.runInputValue - run.runTotalCharges} />
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
