@@ -132,8 +132,8 @@ function RouteComponent() {
       ) : !report ? (
         <div>No report data available</div>
       ) : (
-        <div className="overflow-x-auto border rounded-md">
-          <Table className="w-full text-xs">
+        <div className="w-full max-w-full overflow-x-auto border rounded-md">
+          <Table className="min-w-max text-xs">
             <TableBody>
               {filteredData.map((row, index) => {
                 const isNewOrderGroup = index === 0 || row["Order ID"] !== filteredData[index - 1]["Order ID"]

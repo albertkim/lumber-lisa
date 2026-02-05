@@ -22,7 +22,7 @@ function RouteComponent() {
   }, [currentRoute])
 
   return (
-    <div className="flex flex-col md:flex-row gap-4">
+    <div className="flex min-w-0 flex-col gap-4 md:flex-row">
       <div className="sidebar mb-4 md:mb-0 md:w-64 flex-shrink-0">
         <h1 className="text-lg font-semibold mb-4">LISA Reports</h1>
         <nav className="reports-nav flex flex-wrap md:flex-col gap-1 text-sm">
@@ -52,7 +52,7 @@ function RouteComponent() {
           </Link>
         </nav>
       </div>
-      <div className="content flex-1">
+      <div className="content min-w-0 flex-1">
         <Outlet />
       </div>
     </div>

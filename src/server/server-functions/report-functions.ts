@@ -25,3 +25,24 @@ export const getCurrentInventoryReport = createServerFn({ method: "POST" })
     const report = await IntegrationService.runLisaCurrentInventoryQuery(company)
     return report
   })
+
+export const getProductionRunReport = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
+  .inputValidator(
+    z.object({
+      companyId: z.number(),
+      limit: z.number().int().min(1).max(200).optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional()
+    })
+  )
+  .handler(async ({ data, context }) => {
+    const companyId = data.companyId
+    const company = await CompanyService.getCompanyById(companyId)
+    const report = await IntegrationService.runLisaProductionRunQuery(company, {
+      limit: data.limit,
+      dateFrom: data.dateFrom,
+      dateTo: data.dateTo
+    })
+    return report
+  })

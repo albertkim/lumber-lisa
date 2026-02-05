@@ -70,3 +70,50 @@ export const LisaCurrentInventoryReportSchema = z.object({
 })
 
 export type LisaCurrentInventoryReport = z.infer<typeof LisaCurrentInventoryReportSchema>
+
+export const LisaProductionRunProductFlowSchema = z.object({
+  productId: z.string(),
+  productDescription: z.string().nullable(),
+  inputPieces: z.number(),
+  inputFBM: z.number(),
+  inputM3: z.number(),
+  outputPieces: z.number(),
+  outputFBM: z.number(),
+  outputM3: z.number(),
+  deltaPieces: z.number(),
+  deltaFBM: z.number(),
+  deltaM3: z.number()
+})
+
+export type LisaProductionRunProductFlow = z.infer<typeof LisaProductionRunProductFlowSchema>
+
+export const LisaProductionRunSchema = z.object({
+  runId: z.string(),
+  runDate: z.string().nullable(),
+  runStatus: z.string().nullable(),
+  machineId: z.string().nullable(),
+  profileId: z.string().nullable(),
+  workOrderId: z.string().nullable(),
+  supplierId: z.string().nullable(),
+  inventoryGroupId: z.string().nullable(),
+  inputTagCount: z.number(),
+  outputTagCount: z.number(),
+  inputPieces: z.number(),
+  inputFBM: z.number(),
+  inputM3: z.number(),
+  outputPieces: z.number(),
+  outputFBM: z.number(),
+  outputM3: z.number(),
+  deltaPieces: z.number(),
+  deltaFBM: z.number(),
+  deltaM3: z.number(),
+  products: z.array(LisaProductionRunProductFlowSchema)
+})
+
+export type LisaProductionRun = z.infer<typeof LisaProductionRunSchema>
+
+export const LisaProductionRunReportSchema = z.object({
+  data: z.array(LisaProductionRunSchema)
+})
+
+export type LisaProductionRunReport = z.infer<typeof LisaProductionRunReportSchema>

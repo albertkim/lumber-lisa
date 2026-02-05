@@ -123,8 +123,8 @@ function RouteComponent() {
       ) : !report ? (
         <div>No report data available</div>
       ) : (
-        <div className="overflow-x-auto border rounded-md">
-          <Table className="w-full text-xs">
+        <div className="w-full max-w-full overflow-x-auto border rounded-md">
+          <Table className="min-w-max text-xs">
             <TableHeader>
               <TableRow>
                 <TableHead className="py-2">Product</TableHead>

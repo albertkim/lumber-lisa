@@ -36,7 +36,7 @@ function RouteComponent() {
             <SidebarTrigger />
             <nav className="flex items-center gap-2">{company.companyName}</nav>
           </div>
-          <div className="flex-1 overflow-y-auto mt-4 px-4">
+          <div className="mt-4 flex-1 min-w-0 overflow-y-auto px-4">
             <Outlet />
           </div>
         </main>
