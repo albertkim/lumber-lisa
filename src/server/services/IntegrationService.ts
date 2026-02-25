@@ -37,6 +37,7 @@ const LISA_INVOICE_QUANTITY_LEFT_QUERY = `
 
   select
       coalesce(Order_Det.ID, InvoicedQty.Orderno) as [Order ID],
+      Order_Hdr.Invgrp as [Inventory Group ID],
       Order_Hdr.Custord as [Customer Order ID],
       OrderFirstDescription.Descrip as [Order First Description],
       Customer.Name as [Customer Name],

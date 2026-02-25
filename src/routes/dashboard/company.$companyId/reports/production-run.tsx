@@ -256,6 +256,9 @@ function RouteComponent() {
                         <span className="inline-block w-36">Run ID:</span> {run.runId}
                       </div>
                       <div>
+                        <span className="inline-block w-36">Inventory Group:</span> {run.inventoryGroupId || "-"}
+                      </div>
+                      <div>
                         <span className="inline-block w-36">Date:</span>{" "}
                         {run.runDate ? dayjs(run.runDate).format("YYYY-MM-DD") : "-"}
                       </div>
@@ -263,8 +266,7 @@ function RouteComponent() {
                         <span className="inline-block w-36">Status:</span> {run.runStatus || "-"}
                       </div>
                       <div>
-                        <span className="inline-block w-36">Supplier / InvGrp:</span> {run.supplierId || "-"} /{" "}
-                        {run.inventoryGroupId || "-"}
+                        <span className="inline-block w-36">Supplier:</span> {run.supplierId || "-"}
                       </div>
                       <div>
                         <span className="inline-block w-36">Run totals:</span>

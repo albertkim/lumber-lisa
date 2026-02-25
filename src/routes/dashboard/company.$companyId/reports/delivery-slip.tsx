@@ -218,6 +218,9 @@ function RouteComponent() {
                         <span className="inline-block w-36">Delivery Slip ID:</span> {delivery.deliverySlipId}
                       </div>
                       <div>
+                        <span className="inline-block w-36">Inventory Group:</span> {delivery.inventoryGroupId || "-"}
+                      </div>
+                      <div>
                         <span className="inline-block w-36">Date:</span>{" "}
                         {delivery.deliveryDate ? dayjs(delivery.deliveryDate).format("YYYY-MM-DD") : "-"}
                       </div>

@@ -153,6 +153,9 @@ function RouteComponent() {
                               <span className="inline-block w-36">LISA Order ID:</span> {row["Order ID"]}
                             </div>
                             <div>
+                              <span className="inline-block w-36">Inventory Group:</span> {row["Inventory Group ID"] || "-"}
+                            </div>
+                            <div>
                               <span className="inline-block w-36">Customer Name:</span> {row["Customer Name"]}
                             </div>
                             <div>

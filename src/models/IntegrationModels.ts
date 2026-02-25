@@ -45,6 +45,7 @@ export const LisaInventoryQuantityReportSchema = z.object({
   data: z.array(
     z.object({
       "Order ID": z.string(),
+      "Inventory Group ID": z.string().nullable(),
       "Customer Order ID": z.string().nullable(),
       "Order First Description": z.string().nullable(),
       "Customer Name": z.string().nullable(),
