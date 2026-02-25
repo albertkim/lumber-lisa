@@ -38,7 +38,11 @@ export function Login() {
     },
     onSuccess: (result) => {
       window.localStorage.setItem("token", result.token)
-      window.location.href = "/dashboard"
+      if (result.user.isAdmin) {
+        window.location.href = "/admin"
+      } else {
+        window.location.href = "/dashboard"
+      }
     }
   })
 
@@ -63,9 +67,15 @@ export function Login() {
         </div>
         {authUser && (
           <div>
-            <Link to="/dashboard">
-              <Button className="w-full bg-blue-500 text-white">Go to Dashboard</Button>
-            </Link>
+            {authUser.isAdmin ? (
+              <Link to="/admin">
+                <Button className="w-full bg-blue-500 text-white">Go to Admin</Button>
+              </Link>
+            ) : (
+              <Link to="/dashboard">
+                <Button className="w-full bg-blue-500 text-white">Go to Dashboard</Button>
+              </Link>
+            )}
           </div>
         )}
         <form
