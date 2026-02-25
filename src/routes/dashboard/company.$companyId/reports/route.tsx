@@ -1,13 +1,20 @@
 import { useAuth } from "@/contexts/AuthContext"
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router"
 import { useEffect } from "react"
+import z from "zod"
+
+const reportsSearchSchema = z.object({
+  inventoryGroupId: z.string().optional()
+})
 
 export const Route = createFileRoute("/dashboard/company/$companyId/reports")({
+  validateSearch: (search) => reportsSearchSchema.parse(search),
   component: RouteComponent
 })
 
 function RouteComponent() {
   const { company } = useAuth()
+  const { inventoryGroupId } = Route.useSearch()
   const currentRoute = useRouterState().matches.at(-1)!.routeId
   const navigate = useNavigate({ from: "/dashboard/company/$companyId/reports" })
 
@@ -16,10 +23,11 @@ function RouteComponent() {
       navigate({
         to: "/dashboard/company/$companyId/reports/invoice-quantity",
         params: { companyId: company!.companyId.toString() },
+        search: { inventoryGroupId },
         replace: true
       })
     }
-  }, [currentRoute])
+  }, [currentRoute, inventoryGroupId])
 
   return (
     <div className="flex min-w-0 flex-col gap-4 md:flex-row">
@@ -31,6 +39,7 @@ function RouteComponent() {
             activeProps={{ className: "bg-gray-100 font-medium" }}
             to="/dashboard/company/$companyId/reports/invoice-quantity"
             params={{ companyId: company!.companyId.toString() }}
+            search={{ inventoryGroupId }}
           >
             Invoice quantity
           </Link>
@@ -39,6 +48,7 @@ function RouteComponent() {
             activeProps={{ className: "bg-gray-100 font-medium" }}
             to="/dashboard/company/$companyId/reports/inventory"
             params={{ companyId: company!.companyId.toString() }}
+            search={{ inventoryGroupId }}
           >
             Inventory
           </Link>
@@ -47,6 +57,7 @@ function RouteComponent() {
             activeProps={{ className: "bg-gray-100 font-medium" }}
             to="/dashboard/company/$companyId/reports/production-run"
             params={{ companyId: company!.companyId.toString() }}
+            search={{ inventoryGroupId }}
           >
             Production run
           </Link>
@@ -55,6 +66,7 @@ function RouteComponent() {
             activeProps={{ className: "bg-gray-100 font-medium" }}
             to="/dashboard/company/$companyId/reports/delivery-slip"
             params={{ companyId: company!.companyId.toString() }}
+            search={{ inventoryGroupId }}
           >
             Delivery slips
           </Link>

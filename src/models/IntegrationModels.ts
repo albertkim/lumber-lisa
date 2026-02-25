@@ -28,6 +28,19 @@ export const UpdateIntegrationsSchema = IntegrationsSchema.partial().extend({
 
 export type UpdateIntegrations = z.infer<typeof UpdateIntegrationsSchema>
 
+export const LisaInventoryGroupSchema = z.object({
+  inventoryGroupId: z.string(),
+  inventoryGroupName: z.string().nullable()
+})
+
+export type LisaInventoryGroup = z.infer<typeof LisaInventoryGroupSchema>
+
+export const LisaInventoryGroupsResponseSchema = z.object({
+  data: z.array(LisaInventoryGroupSchema)
+})
+
+export type LisaInventoryGroupsResponse = z.infer<typeof LisaInventoryGroupsResponseSchema>
+
 export const LisaInventoryQuantityReportSchema = z.object({
   data: z.array(
     z.object({

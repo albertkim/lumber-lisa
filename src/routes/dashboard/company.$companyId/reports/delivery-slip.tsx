@@ -14,8 +14,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/contexts/AuthContext"
 import { LisaDeliverySlipReport } from "@/models"
+import { InventoryGroupFilterButton } from "./-InventoryGroupFilterButton"
 import { getDeliverySlipReport } from "@/server/server-functions/report-functions"
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, getRouteApi } from "@tanstack/react-router"
 import dayjs from "dayjs"
 import { DownloadIcon, SearchIcon } from "lucide-react"
 import Papa from "papaparse"
@@ -41,8 +42,11 @@ export const Route = createFileRoute("/dashboard/company/$companyId/reports/deli
   component: RouteComponent
 })
 
+const reportsRouteApi = getRouteApi("/dashboard/company/$companyId/reports")
+
 function RouteComponent() {
   const { company } = useAuth()
+  const { inventoryGroupId } = reportsRouteApi.useSearch()
   const pageSize = 25
   const [report, setReport] = useState<LisaDeliverySlipReport | null>(null)
   const [loading, setLoading] = useState(true)
@@ -65,7 +69,8 @@ function RouteComponent() {
             limit: pageSize,
             offset: (page - 1) * pageSize,
             searchQuery: debouncedSearchQuery || undefined,
-            productQuery: debouncedProductSearchQuery || undefined
+            productQuery: debouncedProductSearchQuery || undefined,
+            inventoryGroupId: inventoryGroupId || undefined
           }
         })
         setReport(reportResponse)
@@ -76,11 +81,11 @@ function RouteComponent() {
       }
     }
     fetchReport()
-  }, [company, page, pageSize, debouncedSearchQuery, debouncedProductSearchQuery])
+  }, [company, page, pageSize, debouncedSearchQuery, debouncedProductSearchQuery, inventoryGroupId])
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearchQuery, debouncedProductSearchQuery])
+  }, [debouncedSearchQuery, debouncedProductSearchQuery, inventoryGroupId])
 
   const exportCSV = () => {
     if (!report) return
@@ -167,6 +172,7 @@ function RouteComponent() {
       <h2>Delivery slip report</h2>
 
       <div className="flex items-center gap-2">
+        <InventoryGroupFilterButton />
         <div className="relative">
           <SearchIcon className="absolute left-2 top-2.5 h-4 w-4" />
           <Input

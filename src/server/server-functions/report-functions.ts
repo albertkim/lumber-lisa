@@ -7,22 +7,26 @@ import { userBelongsToCompanyMiddleware } from "./middleware/belongs-to-company-
 
 export const getInvoiceQuantityReport = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .inputValidator(z.object({ companyId: z.number() }))
+  .inputValidator(z.object({ companyId: z.number(), inventoryGroupId: z.string().optional() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
     const company = await CompanyService.getCompanyById(companyId)
-    const report = await IntegrationService.runLisaInventoryQuantityQuery(company)
+    const report = await IntegrationService.runLisaInventoryQuantityQuery(company, {
+      inventoryGroupId: data.inventoryGroupId
+    })
     return report
   })
 
 export const getCurrentInventoryReport = createServerFn({ method: "POST" })
   .middleware([authMiddleware, userBelongsToCompanyMiddleware])
-  .inputValidator(z.object({ companyId: z.number() }))
+  .inputValidator(z.object({ companyId: z.number(), inventoryGroupId: z.string().optional() }))
   .handler(async ({ data, context }) => {
     const companyId = data.companyId
 
     const company = await CompanyService.getCompanyById(companyId)
-    const report = await IntegrationService.runLisaCurrentInventoryQuery(company)
+    const report = await IntegrationService.runLisaCurrentInventoryQuery(company, {
+      inventoryGroupId: data.inventoryGroupId
+    })
     return report
   })
 
@@ -35,6 +39,7 @@ export const getProductionRunReport = createServerFn({ method: "POST" })
       offset: z.number().int().min(0).optional(),
       runId: z.string().optional(),
       productQuery: z.string().optional(),
+      inventoryGroupId: z.string().optional(),
       dateFrom: z.string().optional(),
       dateTo: z.string().optional()
     })
@@ -47,6 +52,7 @@ export const getProductionRunReport = createServerFn({ method: "POST" })
       offset: data.offset,
       runId: data.runId,
       productQuery: data.productQuery,
+      inventoryGroupId: data.inventoryGroupId,
       dateFrom: data.dateFrom,
       dateTo: data.dateTo
     })
@@ -62,6 +68,7 @@ export const getDeliverySlipReport = createServerFn({ method: "POST" })
       offset: z.number().int().min(0).optional(),
       searchQuery: z.string().optional(),
       productQuery: z.string().optional(),
+      inventoryGroupId: z.string().optional(),
       dateFrom: z.string().optional(),
       dateTo: z.string().optional()
     })
@@ -74,8 +81,18 @@ export const getDeliverySlipReport = createServerFn({ method: "POST" })
       offset: data.offset,
       searchQuery: data.searchQuery,
       productQuery: data.productQuery,
+      inventoryGroupId: data.inventoryGroupId,
       dateFrom: data.dateFrom,
       dateTo: data.dateTo
     })
     return report
+  })
+
+export const getInventoryGroups = createServerFn({ method: "POST" })
+  .middleware([authMiddleware, userBelongsToCompanyMiddleware])
+  .inputValidator(z.object({ companyId: z.number() }))
+  .handler(async ({ data, context }) => {
+    const companyId = data.companyId
+    const company = await CompanyService.getCompanyById(companyId)
+    return IntegrationService.getLisaInventoryGroups(company)
   })

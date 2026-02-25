@@ -1,6 +1,7 @@
 import {
   Company,
   LisaDeliverySlipReport,
+  LisaInventoryGroupsResponse,
   Integrations,
   LisaCurrentInventoryReport,
   LisaInventoryQuantityReport,
@@ -61,6 +62,7 @@ const LISA_INVOICE_QUANTITY_LEFT_QUERY = `
     and OrderFirstDescription.row_number = 1
   where coalesce(Order_Hdr.Status, 'O') = 'O'
     and coalesce(Order_Det.Prodid, InvoicedQty.Prodid) is not null
+    /*__INVENTORY_GROUP_FILTER__*/
   order by [Order ID];
 `
 
@@ -87,6 +89,7 @@ const LISA_CURRENT_INVENTORY_QUERY = `
     dbo.Invgrp ig ON t.Grpid = ig.Grpid
   WHERE
       t.Status = 'I' -- ### Filter for "Available" inventory based on our hypothesis ###
+      /*__INVENTORY_GROUP_FILTER__*/
   GROUP BY
     p.Prodid,
     p.Descrip,
@@ -110,6 +113,7 @@ type ProductionRunOptions = {
   offset?: number
   runId?: string
   productQuery?: string
+  inventoryGroupId?: string
   dateFrom?: string
   dateTo?: string
 }
@@ -119,8 +123,13 @@ type DeliverySlipOptions = {
   offset?: number
   searchQuery?: string
   productQuery?: string
+  inventoryGroupId?: string
   dateFrom?: string
   dateTo?: string
+}
+
+type InventoryGroupFilterOptions = {
+  inventoryGroupId?: string
 }
 
 const DEFAULT_PRODUCTION_RUN_LIMIT = 25
@@ -185,7 +194,10 @@ export const IntegrationService = {
     return IntegrationsRepository.updateIntegrations(companyId, integrations)
   },
 
-  async runLisaInventoryQuantityQuery(company: Company): Promise<LisaInventoryQuantityReport> {
+  async runLisaInventoryQuantityQuery(
+    company: Company,
+    options?: InventoryGroupFilterOptions
+  ): Promise<LisaInventoryQuantityReport> {
     const integrations = await this.getIntegrations(company.companyId)
     if (!integrations.lisa) {
       throw new Error("Lisa is not configured")
@@ -199,14 +211,22 @@ export const IntegrationService = {
       port: 1433
     }
 
-    const result = await executeMSSQLQuery(connectionConfig, LISA_INVOICE_QUANTITY_LEFT_QUERY)
+    const inventoryGroupFilter = options?.inventoryGroupId?.trim()
+      ? `AND Order_Hdr.Invgrp = '${toMssqlDateLiteral(options.inventoryGroupId.trim())}'`
+      : ""
+    const query = LISA_INVOICE_QUANTITY_LEFT_QUERY.replace("/*__INVENTORY_GROUP_FILTER__*/", inventoryGroupFilter)
+
+    const result = await executeMSSQLQuery(connectionConfig, query)
 
     return {
       data: result
     } as LisaInventoryQuantityReport
   },
 
-  async runLisaCurrentInventoryQuery(company: Company): Promise<LisaCurrentInventoryReport> {
+  async runLisaCurrentInventoryQuery(
+    company: Company,
+    options?: InventoryGroupFilterOptions
+  ): Promise<LisaCurrentInventoryReport> {
     const integrations = await this.getIntegrations(company.companyId)
     if (!integrations.lisa) {
       throw new Error("Lisa is not configured")
@@ -220,11 +240,50 @@ export const IntegrationService = {
       port: 1433
     }
 
-    const result = await executeMSSQLQuery(connectionConfig, LISA_CURRENT_INVENTORY_QUERY)
+    const inventoryGroupFilter = options?.inventoryGroupId?.trim()
+      ? `AND t.Grpid = '${toMssqlDateLiteral(options.inventoryGroupId.trim())}'`
+      : ""
+    const query = LISA_CURRENT_INVENTORY_QUERY.replace("/*__INVENTORY_GROUP_FILTER__*/", inventoryGroupFilter)
+
+    const result = await executeMSSQLQuery(connectionConfig, query)
 
     return {
       data: result
     } as LisaCurrentInventoryReport
+  },
+
+  async getLisaInventoryGroups(company: Company): Promise<LisaInventoryGroupsResponse> {
+    const integrations = await this.getIntegrations(company.companyId)
+    if (!integrations.lisa) {
+      throw new Error("Lisa is not configured")
+    }
+
+    const connectionConfig: MSSQLConnectionConfig = {
+      username: integrations.lisa.databaseUsername,
+      password: integrations.lisa.databasePassword,
+      database: integrations.lisa.databaseName,
+      host: integrations.lisa.databaseHost,
+      port: 1433
+    }
+
+    const query = `
+      SELECT
+        Grpid AS [Inventory Group ID],
+        Name AS [Inventory Group Name]
+      FROM dbo.Invgrp
+      WHERE COALESCE(Inactive, 0) = 0
+      ORDER BY Name, Grpid;
+    `
+
+    const rows = await executeMSSQLQuery(connectionConfig, query)
+    const data = rows
+      .map((row) => ({
+        inventoryGroupId: toNullableString(row["Inventory Group ID"]),
+        inventoryGroupName: toNullableString(row["Inventory Group Name"])
+      }))
+      .filter((row): row is { inventoryGroupId: string; inventoryGroupName: string | null } => Boolean(row.inventoryGroupId))
+
+    return { data }
   },
 
   async runLisaProductionRunQuery(company: Company, options?: ProductionRunOptions): Promise<LisaProductionRunReport> {
@@ -295,6 +354,9 @@ export const IntegrationService = {
 
       const escapedProductRunIds = productRunIds.map((runId) => `'${runId.replace(/'/g, "''")}'`).join(", ")
       whereClauses.push(`rh.ID IN (${escapedProductRunIds})`)
+    }
+    if (options?.inventoryGroupId?.trim()) {
+      whereClauses.push(`rh.Invgrp = '${toMssqlDateLiteral(options.inventoryGroupId.trim())}'`)
     }
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""
@@ -798,6 +860,9 @@ export const IntegrationService = {
             )
         )
       `)
+    }
+    if (options?.inventoryGroupId?.trim()) {
+      whereClauses.push(`d.Invgrp = '${toMssqlDateLiteral(options.inventoryGroupId.trim())}'`)
     }
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""

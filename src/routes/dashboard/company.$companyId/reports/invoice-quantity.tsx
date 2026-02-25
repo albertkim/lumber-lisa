@@ -6,8 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
 import { useAuth } from "@/contexts/AuthContext"
 import { LisaInventoryQuantityReport } from "@/models"
+import { InventoryGroupFilterButton } from "./-InventoryGroupFilterButton"
 import { getInvoiceQuantityReport } from "@/server/server-functions/report-functions"
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, getRouteApi } from "@tanstack/react-router"
 import dayjs from "dayjs"
 import { DownloadIcon, SearchIcon } from "lucide-react"
 import Papa from "papaparse"
@@ -33,8 +34,11 @@ export const Route = createFileRoute("/dashboard/company/$companyId/reports/invo
   component: RouteComponent
 })
 
+const reportsRouteApi = getRouteApi("/dashboard/company/$companyId/reports")
+
 function RouteComponent() {
   const { company } = useAuth()
+  const { inventoryGroupId } = reportsRouteApi.useSearch()
   const [report, setReport] = useState<LisaInventoryQuantityReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [productSearchQuery, setProductSearchQuery] = useState("")
@@ -51,7 +55,8 @@ function RouteComponent() {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           },
           data: {
-            companyId: company.companyId
+            companyId: company.companyId,
+            inventoryGroupId: inventoryGroupId || undefined
           }
         })
         setReport(reportResponse)
@@ -62,7 +67,7 @@ function RouteComponent() {
       }
     }
     fetchReport()
-  }, [company])
+  }, [company, inventoryGroupId])
 
   const exportCSV = () => {
     if (!report) return
@@ -98,6 +103,7 @@ function RouteComponent() {
       <h2>Open order invoice quantity report</h2>
 
       <div className="flex items-center gap-2">
+        <InventoryGroupFilterButton />
         <div className="relative">
           <SearchIcon className="absolute left-2 top-2.5 h-4 w-4" />
           <Input
